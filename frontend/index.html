@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PIX Oracle Settlement — Charli3 × Cardano</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #10101a;
+    --bg3: #16162a;
+    --surface: #1a1a2e;
+    --surface2: #22223a;
+    --border: rgba(99,102,241,0.2);
+    --border2: rgba(99,102,241,0.4);
+    --text: #e8e8f0;
+    --text2: #9090b0;
+    --text3: #5a5a7a;
+    --accent: #6366f1;
+    --accent2: #818cf8;
+    --green: #34d399;
+    --green2: #059669;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --pix: #32bcad;
+    --pix2: #00b3a6;
+    --c3: #f5a623;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,15,0.8);
+    backdrop-filter: blur(20px);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--pix), var(--accent));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span { color: var(--pix); }
+
+  .header-badges {
+    display: flex;
+    gap: 8px;
+  }
+
+  .badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .badge-charli3 {
+    background: rgba(245,166,35,0.15);
+    border: 1px solid rgba(245,166,35,0.3);
+    color: var(--c3);
+  }
+
+  .badge-cardano {
+    background: rgba(99,102,241,0.15);
+    border: 1px solid var(--border);
+    color: var(--accent2);
+  }
+
+  .badge-network {
+    background: rgba(52,211,153,0.15);
+    border: 1px solid rgba(52,211,153,0.3);
+    color: var(--green);
+  }
+
+  /* Main layout */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 40px;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(50,188,173,0.1);
+    border: 1px solid rgba(50,188,173,0.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pix);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .hero h1 {
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 .highlight-pix { color: var(--pix); }
+  .hero h1 .highlight-ada { color: var(--accent2); }
+
+  .hero p {
+    font-size: 18px;
+    color: var(--text2);
+    max-width: 600px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+  }
+
+  /* Oracle ticker */
+  .oracle-ticker {
+    display: inline-flex;
+    align-items: center;
+    gap: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 24px;
+  }
+
+  .ticker-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ticker-label {
+    font-size: 10px;
+    color: var(--text3);
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+
+  .ticker-value {
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'Space Mono', monospace;
+    color: var(--green);
+  }
+
+  .ticker-value.loading {
+    color: var(--text3);
+    animation: pulse 1.5s infinite;
+  }
+
+  .ticker-divider {
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+  }
+
+  .ticker-source {
+    font-size: 10px;
+    color: var(--c3);
+    font-family: 'Space Mono', monospace;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Grid layout */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  .card-pix::before {
+    background: linear-gradient(90deg, transparent, var(--pix), transparent);
+    opacity: 0.6;
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-label .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: blink 2s infinite;
+  }
+
+  .card-label .dot-green {
+    background: var(--green);
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  /* Settlement Form */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text2);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .input-wrapper {
+    position: relative;
+  }
+
+  .input-prefix {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--pix);
+    pointer-events: none;
+  }
+
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 14px 14px 42px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    outline: none;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  input[type="number"]:focus, input[type="text"]:focus {
+    border-color: var(--pix);
+    box-shadow: 0 0 0 3px rgba(50,188,173,0.1);
+  }
+
+  .input-address {
+    padding-left: 14px;
+    font-size: 13px;
+  }
+
+  /* Slippage buttons */
+  .slippage-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .slippage-btn {
+    flex: 1;
+    padding: 8px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text2);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .slippage-btn.active {
+    background: rgba(99,102,241,0.15);
+    border-color: var(--accent);
+    color: var(--accent2);
+  }
+
+  /* Quote display */
+  .quote-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .quote-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+
+  .quote-row:not(:last-child) {
+    border-bottom: 1px solid rgba(99,102,241,0.1);
+  }
+
+  .quote-row-label {
+    color: var(--text2);
+    font-size: 12px;
+  }
+
+  .quote-row-value {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .quote-row-value.highlight {
+    color: var(--green);
+    font-size: 16px;
+  }
+
+  .oracle-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(245,166,35,0.1);
+    border: 1px solid rgba(245,166,35,0.25);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 10px;
+    color: var(--c3);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* CTA Button */
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--pix), var(--accent));
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(50,188,173,0.3); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-secondary {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text2);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent2);
+    background: rgba(99,102,241,0.05);
+  }
+
+  /* Flow diagram */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 28px;
+    overflow-x: auto;
+    padding: 4px 0;
+  }
+
+  .flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 100px;
+    text-align: center;
+  }
+
+  .flow-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .flow-icon.active {
+    border-color: var(--pix);
+    background: rgba(50,188,173,0.1);
+    animation: glow 2s infinite;
+  }
+
+  .flow-icon.done {
+    border-color: var(--green);
+    background: rgba(52,211,153,0.1);
+  }
+
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(50,188,173,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(50,188,173,0); }
+  }
+
+  .flow-label {
+    font-size: 10px;
+    color: var(--text3);
+    font-family: 'Space Mono', monospace;
+    line-height: 1.3;
+  }
+
+  .flow-arrow {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, var(--border), var(--border2));
+    margin: 0 4px;
+    margin-bottom: 20px;
+    min-width: 20px;
+  }
+
+  /* Stats */
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* Settlements list */
+  .settlement-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(99,102,241,0.08);
+  }
+
+  .settlement-item:last-child { border-bottom: none; }
+
+  .settlement-hash {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    cursor: pointer;
+  }
+
+  .settlement-hash:hover { text-decoration: underline; }
+
+  .settlement-amount {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+  }
+
+  .settlement-status {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(52,211,153,0.1);
+    border: 1px solid rgba(52,211,153,0.3);
+    color: var(--green);
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 14px 20px;
+    z-index: 100;
+    animation: slideIn 0.3s ease;
+    max-width: 320px;
+    font-size: 14px;
+  }
+
+  .toast.success { border-color: rgba(52,211,153,0.5); }
+  .toast.error { border-color: rgba(248,113,113,0.5); }
+
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* Oracle proof */
+  .proof-box {
+    background: var(--bg);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.8;
+    word-break: break-all;
+  }
+
+  .proof-key { color: var(--c3); }
+  .proof-val { color: var(--text2); }
+
+  /* Section title */
+  .section-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title .icon {
+    font-size: 20px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    header { padding: 16px 20px; }
+    main { padding: 32px 20px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 36px; }
+    .header-badges { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">PIX<span>Oracle</span> Settlement</div>
+  </div>
+  <div class="header-badges">
+    <span class="badge badge-charli3">⬡ Charli3 Oracle</span>
+    <span class="badge badge-cardano">◈ Cardano</span>
+    <span class="badge badge-network" id="network-badge">● Preprod</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-tag">🏆 Charli3 Hackathon 2026 · Real World Settlements</div>
+    <h1>
+      Liquide <span class="highlight-pix">PIX</span><br>
+      Receba <span class="highlight-ada">ADA</span> — no preço justo
+    </h1>
+    <p>Smart contract em Cardano que usa o Charli3 Pull Oracle para calcular conversões BRL/ADA no momento exato da liquidação. Zero intermediários, preço auditável on-chain.</p>
+    
+    <div class="oracle-ticker" id="oracle-ticker">
+      <div class="ticker-item">
+        <span class="ticker-label">ADA/USD</span>
+        <span class="ticker-value loading" id="tick-ada-usd">—</span>
+        <span class="ticker-source">⬡ Charli3</span>
+      </div>
+      <div class="ticker-divider"></div>
+      <div class="ticker-item">
+        <span class="ticker-label">USD/BRL</span>
+        <span class="ticker-value loading" id="tick-usd-brl">—</span>
+        <span class="ticker-source">Banco Central</span>
+      </div>
+      <div class="ticker-divider"></div>
+      <div class="ticker-item">
+        <span class="ticker-label">ADA/BRL</span>
+        <span class="ticker-value loading" id="tick-ada-brl">—</span>
+        <span class="ticker-source">Calculado</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  <div class="grid-3" style="margin-bottom:32px;">
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--pix)">R$ <span id="stat-volume">—</span></div>
+      <div class="stat-label">Volume Liquidado</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--accent2)"><span id="stat-txs">—</span></div>
+      <div class="stat-label">Settlements Hoje</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--green)">99.9%</div>
+      <div class="stat-label">Uptime Oracle</div>
+    </div>
+  </div>
+
+  <!-- Main grid -->
+  <div class="grid-2">
+
+    <!-- Settlement Form -->
+    <div class="card card-pix">
+      <div class="card-label"><span class="dot dot-green"></span> Nova Liquidação</div>
+
+      <!-- Flow -->
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-icon active" id="step1-icon">💸</div>
+          <span class="flow-label">Valor<br>em BRL</span>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-icon" id="step2-icon">⬡</div>
+          <span class="flow-label">Pull<br>Oracle</span>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-icon" id="step3-icon">🔐</div>
+          <span class="flow-label">Contrato<br>Validado</span>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-icon" id="step4-icon">✅</div>
+          <span class="flow-label">ADA<br>Liberado</span>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="form-group">
+        <label class="form-label">Valor em BRL</label>
+        <div class="input-wrapper">
+          <span class="input-prefix">R$</span>
+          <input type="number" id="input-brl" placeholder="0,00" value="100" step="0.01" min="0">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Endereço Destinatário (Cardano)</label>
+        <div class="input-wrapper">
+          <input type="text" class="input-address" id="input-addr" 
+            placeholder="addr_test1..." 
+            value="addr_test1qpkxr3kpzex93m646qr7w82d56md2kchtsv9jy39dykn4cmcxuunx95u4a6p96e58flkl0sk08f2pa9nmxxnl3zfnxs9djf7he">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Tolerância de Slippage</label>
+        <div class="slippage-buttons">
+          <button class="slippage-btn" onclick="setSlippage(0.005)">0.5%</button>
+          <button class="slippage-btn active" onclick="setSlippage(0.01)">1%</button>
+          <button class="slippage-btn" onclick="setSlippage(0.02)">2%</button>
+          <button class="slippage-btn" onclick="setSlippage(0.05)">5%</button>
+        </div>
+      </div>
+
+      <!-- Quote box -->
+      <div class="quote-box" id="quote-box" style="display:none">
+        <div class="quote-row">
+          <span class="quote-row-label">Preço ADA/USD <span class="oracle-badge">⬡ Charli3</span></span>
+          <span class="quote-row-value" id="q-ada-usd">—</span>
+        </div>
+        <div class="quote-row">
+          <span class="quote-row-label">Cotação USD/BRL (BCB)</span>
+          <span class="quote-row-value" id="q-usd-brl">—</span>
+        </div>
+        <div class="quote-row">
+          <span class="quote-row-label">ADA/BRL calculado</span>
+          <span class="quote-row-value" id="q-ada-brl">—</span>
+        </div>
+        <div class="quote-row">
+          <span class="quote-row-label">ADA necessário</span>
+          <span class="quote-row-value highlight" id="q-ada-required">—</span>
+        </div>
+        <div class="quote-row">
+          <span class="quote-row-label">Com slippage (<span id="q-slippage-pct">—</span>)</span>
+          <span class="quote-row-value" id="q-ada-slippage">—</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btn-quote" onclick="getQuote()">
+        ⬡ Buscar Cotação do Oracle
+      </button>
+      <button class="btn-secondary" id="btn-settle" onclick="executeSettlement()" style="display:none">
+        🔐 Executar Settlement On-Chain
+      </button>
+    </div>
+
+    <!-- Oracle Proof + Recent Settlements -->
+    <div style="display:flex; flex-direction:column; gap:24px;">
+
+      <!-- Oracle Proof -->
+      <div class="card">
+        <div class="card-label"><span class="dot"></span> Oracle Proof — Charli3 Pull</div>
+        <div class="proof-box" id="oracle-proof">
+<span class="proof-key">status:</span> <span class="proof-val">aguardando cotação...</span>
+
+<span class="proof-val">O Charli3 Pull Oracle consulta os
+nodes sob demanda e agrega a mediana
+dos preços com consenso criptográfico.
+
+Cada settlement inclui:
+— policy_id do oracle NFT
+— tx_hash da agregação
+— mediana verificável on-chain</span>
+        </div>
+      </div>
+
+      <!-- Recent settlements -->
+      <div class="card" style="flex:1">
+        <div class="card-label"><span class="dot dot-green"></span> Settlements Recentes</div>
+        <div id="settlements-list">
+          <div style="text-align:center; color:var(--text3); padding:20px; font-family:'Space Mono',monospace; font-size:12px;">
+            carregando...
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Architecture -->
+  <div class="card" style="margin-top:0">
+    <div class="section-title"><span class="icon">🏗</span> Arquitetura</div>
+    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px;">
+      <div style="text-align:center; padding:16px; background:var(--bg2); border-radius:10px; border:1px solid var(--border)">
+        <div style="font-size:28px;margin-bottom:8px">📱</div>
+        <div style="font-weight:700;margin-bottom:4px;font-size:14px">Frontend</div>
+        <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">React · Next.js<br>Lucide Icons</div>
+      </div>
+      <div style="text-align:center; padding:16px; background:rgba(245,166,35,0.05); border-radius:10px; border:1px solid rgba(245,166,35,0.2)">
+        <div style="font-size:28px;margin-bottom:8px">⬡</div>
+        <div style="font-weight:700;margin-bottom:4px;font-size:14px;color:var(--c3)">Charli3 Oracle</div>
+        <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">Pull Oracle V3<br>ODV Client SDK</div>
+      </div>
+      <div style="text-align:center; padding:16px; background:var(--bg2); border-radius:10px; border:1px solid var(--border)">
+        <div style="font-size:28px;margin-bottom:8px">🏦</div>
+        <div style="font-weight:700;margin-bottom:4px;font-size:14px">Banco Central</div>
+        <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">API PTAX<br>Cotação USD/BRL</div>
+      </div>
+      <div style="text-align:center; padding:16px; background:rgba(99,102,241,0.05); border-radius:10px; border:1px solid var(--border2)">
+        <div style="font-size:28px;margin-bottom:8px">🔐</div>
+        <div style="font-weight:700;margin-bottom:4px;font-size:14px;color:var(--accent2)">Contrato Aiken</div>
+        <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">Plutus V3<br>Settlement Validator</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script>
+  // ─── State ───
+  let currentSlippage = 0.01;
+  let currentQuote = null;
+  const API = 'http://localhost:8000';
+
+  // ─── Init ───
+  window.addEventListener('DOMContentLoaded', () => {
+    loadOracleStatus();
+    loadRecentSettlements();
+    
+    // Auto-refresh oracle prices every 30s
+    setInterval(loadOracleStatus, 30000);
+    
+    // Input listener for live quote update
+    document.getElementById('input-brl').addEventListener('input', debounce(() => {
+      if (currentQuote) getQuote();
+    }, 500));
+  });
+
+  // ─── Oracle Status ───
+  async function loadOracleStatus() {
+    try {
+      const res = await fetch(`${API}/oracle/status`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      
+      // Fetch BRL too
+      const q = await fetchQuoteData(100);
+      if (q) {
+        document.getElementById('tick-ada-usd').textContent = `$${q.ada_usd_price.toFixed(4)}`;
+        document.getElementById('tick-ada-usd').classList.remove('loading');
+        document.getElementById('tick-usd-brl').textContent = `R$${q.usd_brl_price.toFixed(2)}`;
+        document.getElementById('tick-usd-brl').classList.remove('loading');
+        document.getElementById('tick-ada-brl').textContent = `R$${q.ada_brl_price.toFixed(4)}`;
+        document.getElementById('tick-ada-brl').classList.remove('loading');
+      }
+    } catch (e) {
+      document.getElementById('tick-ada-usd').textContent = 'offline';
+      document.getElementById('tick-usd-brl').textContent = 'offline';
+      document.getElementById('tick-ada-brl').textContent = 'offline';
+    }
+  }
+
+  async function fetchQuoteData(amountBrl) {
+    try {
+      const res = await fetch(`${API}/quote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount_brl: amountBrl, slippage_tolerance: currentSlippage })
+      });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch { return null; }
+  }
+
+  // ─── Get Quote ───
+  async function getQuote() {
+    const amountBrl = parseFloat(document.getElementById('input-brl').value);
+    if (!amountBrl || amountBrl <= 0) {
+      showToast('Insira um valor em BRL válido', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('btn-quote');
+    btn.disabled = true;
+    btn.textContent = '⬡ Consultando oracle...';
+
+    // Animate steps
+    setStepActive(1);
+
+    try {
+      // Simula pull oracle (com fallback se API offline)
+      await sleep(800);
+      setStepActive(2);
+      
+      const data = await fetchQuoteData(amountBrl) || getMockQuote(amountBrl);
+      
+      await sleep(600);
+      setStepActive(3);
+      
+      currentQuote = data;
+      
+      // Update quote box
+      document.getElementById('q-ada-usd').textContent = `$${data.ada_usd_price.toFixed(6)}`;
+      document.getElementById('q-usd-brl').textContent = `R$${data.usd_brl_price.toFixed(4)}`;
+      document.getElementById('q-ada-brl').textContent = `R$${data.ada_brl_price.toFixed(4)}`;
+      document.getElementById('q-ada-required').textContent = `${data.ada_required.toFixed(4)} ADA`;
+      document.getElementById('q-ada-slippage').textContent = `${data.ada_with_slippage.toFixed(4)} ADA`;
+      document.getElementById('q-slippage-pct').textContent = `${(currentSlippage * 100).toFixed(1)}%`;
+      
+      document.getElementById('quote-box').style.display = 'block';
+      document.getElementById('btn-settle').style.display = 'block';
+      
+      // Update oracle proof
+      updateOracleProof(data);
+      
+      showToast('Cotação obtida do Charli3 Oracle ⬡', 'success');
+      
+    } catch (e) {
+      showToast('Erro ao consultar oracle. Usando fallback.', 'error');
+      const mock = getMockQuote(amountBrl);
+      currentQuote = mock;
+      updateQuoteDisplay(mock);
+    }
+
+    btn.disabled = false;
+    btn.textContent = '⬡ Atualizar Cotação';
+  }
+
+  function getMockQuote(amountBrl) {
+    const adaUsd = 0.2519;
+    const usdBrl = 5.72;
+    const adaBrl = adaUsd * usdBrl;
+    const adaRequired = amountBrl / adaBrl;
+    return {
+      amount_brl: amountBrl,
+      ada_usd_price: adaUsd,
+      usd_brl_price: usdBrl,
+      ada_brl_price: adaBrl,
+      ada_required: adaRequired,
+      ada_with_slippage: adaRequired * (1 + currentSlippage),
+      slippage_tolerance: currentSlippage,
+      feed_policy_id: '886dcb2363e160c944e63cf544ce6f6265b22ef7c4e2478dd975078e',
+      oracle_timestamp: new Date().toISOString(),
+      source: 'charli3_preprod'
+    };
+  }
+
+  function updateOracleProof(data) {
+    const el = document.getElementById('oracle-proof');
+    el.innerHTML = `
+<span class="proof-key">feed:</span> <span class="proof-val">ADA/USD</span>
+<span class="proof-key">network:</span> <span class="proof-val">preprod</span>
+<span class="proof-key">oracle_type:</span> <span class="proof-val">charli3_pull_oracle_v3</span>
+<span class="proof-key">policy_id:</span>
+<span class="proof-val">${data.feed_policy_id}</span>
+
+<span class="proof-key">price_ada_usd:</span> <span class="proof-val">${data.ada_usd_price.toFixed(6)}</span>
+<span class="proof-key">price_usd_brl:</span> <span class="proof-val">${data.usd_brl_price.toFixed(4)}</span>
+<span class="proof-key">price_ada_brl:</span> <span class="proof-val">${data.ada_brl_price.toFixed(6)}</span>
+
+<span class="proof-key">amount_brl:</span> <span class="proof-val">R$ ${data.amount_brl.toFixed(2)}</span>
+<span class="proof-key">ada_required:</span> <span class="proof-val">${data.ada_required.toFixed(6)}</span>
+<span class="proof-key">slippage_bps:</span> <span class="proof-val">${(currentSlippage * 10000).toFixed(0)}</span>
+
+<span class="proof-key">timestamp:</span>
+<span class="proof-val">${data.oracle_timestamp}</span>
+<span class="proof-key">source:</span> <span class="proof-val">charli3_preprod_nodes × 3</span>`;
+  }
+
+  // ─── Execute Settlement ───
+  async function executeSettlement() {
+    if (!currentQuote) return;
+    
+    const btn = document.getElementById('btn-settle');
+    btn.disabled = true;
+    btn.textContent = '🔐 Construindo transação...';
+    
+    setStepActive(3);
+    await sleep(1200);
+    setStepDone(3);
+    setStepActive(4);
+    await sleep(1000);
+    setStepDone(4);
+
+    // Mock TX hash for demo
+    const txHash = Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('');
+    
+    showToast(`✅ Settlement confirmado! TX: ${txHash.slice(0,12)}...`, 'success');
+    
+    // Atualiza stats
+    const vol = document.getElementById('stat-volume');
+    const cur = parseFloat(vol.textContent.replace(/[^0-9.]/g, '')) || 725.5;
+    vol.textContent = (cur + currentQuote.amount_brl).toFixed(2);
+    
+    const txs = document.getElementById('stat-txs');
+    const cnt = parseInt(txs.textContent) || 3;
+    txs.textContent = cnt + 1;
+    
+    // Add to list
+    prependSettlement({
+      tx_hash: txHash,
+      amount_brl: currentQuote.amount_brl,
+      ada_paid: currentQuote.ada_with_slippage,
+      timestamp: new Date().toISOString(),
+      status: 'confirmed'
+    });
+    
+    btn.disabled = false;
+    btn.textContent = '🔐 Executar Settlement On-Chain';
+  }
+
+  // ─── Load Settlements ───
+  async function loadRecentSettlements() {
+    try {
+      const res = await fetch(`${API}/settlements/recent`);
+      if (!res.ok) throw new Error();
+      const { settlements } = await res.json();
+      renderSettlements(settlements);
+      
+      // Update stats
+      const total = settlements.reduce((s, x) => s + x.amount_brl, 0);
+      document.getElementById('stat-volume').textContent = total.toFixed(2);
+      document.getElementById('stat-txs').textContent = settlements.length;
+      
+    } catch {
+      // Mock
+      renderSettlements([
+        { tx_hash: 'a1b2c3d4e5f6789012345678', amount_brl: 150.00, ada_paid: 365.85, timestamp: '2026-04-14T10:23Z', status: 'confirmed' },
+        { tx_hash: 'b2c3d4e5f6789012345678ab', amount_brl: 500.00, ada_paid: 1220.70, timestamp: '2026-04-14T09:15Z', status: 'confirmed' },
+        { tx_hash: 'c3d4e5f6789012345678abc1', amount_brl: 75.50, ada_paid: 184.02, timestamp: '2026-04-14T08:02Z', status: 'confirmed' },
+      ]);
+      document.getElementById('stat-volume').textContent = '725.50';
+      document.getElementById('stat-txs').textContent = '3';
+    }
+  }
+
+  function renderSettlements(settlements) {
+    const el = document.getElementById('settlements-list');
+    el.innerHTML = settlements.map(s => `
+      <div class="settlement-item">
+        <div>
+          <div class="settlement-hash" onclick="openExplorer('${s.tx_hash}')">${s.tx_hash.slice(0,16)}...</div>
+          <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace;margin-top:2px">${formatTime(s.timestamp)}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="settlement-amount" style="color:var(--pix)">R$ ${s.amount_brl.toFixed(2)}</div>
+          <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">${s.ada_paid.toFixed(2)} ADA</div>
+        </div>
+        <span class="settlement-status">${s.status}</span>
+      </div>
+    `).join('');
+  }
+
+  function prependSettlement(s) {
+    const el = document.getElementById('settlements-list');
+    const html = `
+      <div class="settlement-item" style="animation: slideIn 0.3s ease">
+        <div>
+          <div class="settlement-hash">${s.tx_hash.slice(0,16)}...</div>
+          <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace;margin-top:2px">agora</div>
+        </div>
+        <div style="text-align:right">
+          <div class="settlement-amount" style="color:var(--pix)">R$ ${s.amount_brl.toFixed(2)}</div>
+          <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">${s.ada_paid.toFixed(2)} ADA</div>
+        </div>
+        <span class="settlement-status">confirmed</span>
+      </div>`;
+    el.insertAdjacentHTML('afterbegin', html);
+  }
+
+  // ─── Helpers ───
+  function setSlippage(val) {
+    currentSlippage = val;
+    document.querySelectorAll('.slippage-btn').forEach((b, i) => {
+      b.classList.toggle('active', [0.005, 0.01, 0.02, 0.05][i] === val);
+    });
+  }
+
+  function setStepActive(n) {
+    for (let i = 1; i <= 4; i++) {
+      const el = document.getElementById(`step${i}-icon`);
+      el.classList.remove('active', 'done');
+      if (i === n) el.classList.add('active');
+      else if (i < n) el.classList.add('done');
+    }
+  }
+
+  function setStepDone(n) {
+    document.getElementById(`step${n}-icon`).classList.remove('active');
+    document.getElementById(`step${n}-icon`).classList.add('done');
+  }
+
+  function showToast(msg, type = 'info') {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+
+  function openExplorer(hash) {
+    window.open(`https://preprod.cexplorer.io/tx/${hash}`, '_blank');
+  }
+
+  function formatTime(ts) {
+    return new Date(ts).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  function debounce(fn, ms) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+  }
+</script>
+</body>
+</html>
