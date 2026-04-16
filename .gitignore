@@ -1,0 +1,19 @@
+# Environment
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Aiken build
+contracts/build/
+
+# SDK (external dependency)
+charli3-pull-oracle-client/
+
+# Misc
+*.zip
+gh_cli/
