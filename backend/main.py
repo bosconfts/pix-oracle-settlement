@@ -7,6 +7,7 @@ para calcular conversões ADA/BRL trustless on-chain.
 """
 
 import os
+import json
 import asyncio
 import time
 import httpx
@@ -41,6 +42,7 @@ app.add_middleware(
 
 CHARLI3_CONFIG_PATH = Path(__file__).parent / "config.yaml"
 FEEDS_JSON_PATH = Path(__file__).parent / "feeds.json"
+SETTLEMENTS_JSON_PATH = Path(__file__).parent / "settlements.json"
 
 BCB_API_URL = "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)"
 
@@ -76,6 +78,23 @@ class OracleStatus(BaseModel):
     status: str
     source: str
     node_count: int
+
+class SettleRequest(BaseModel):
+    amount_brl: float
+    recipient_address: Optional[str] = None
+    slippage_tolerance: float = 0.01
+    pix_key: Optional[str] = None
+
+class SettleResponse(BaseModel):
+    tx_hash: str
+    amount_brl: float
+    ada_paid: float
+    ada_usd_price: float
+    usd_brl_price: float
+    oracle_policy_id: str
+    timestamp: str
+    status: str
+    explorer_url: str
 
 # ─────────────────────────────────────────────
 # Charli3 Pull Oracle Integration
@@ -266,20 +285,132 @@ async def oracle_history():
     return {"history": history, "feed": "ADA/USD", "source": "charli3_preprod"}
 
 
+# ─────────────────────────────────────────────
+# Settlement persistence
+# ─────────────────────────────────────────────
+
+def load_settlements() -> list:
+    if SETTLEMENTS_JSON_PATH.exists():
+        with SETTLEMENTS_JSON_PATH.open() as f:
+            return json.load(f).get("settlements", [])
+    return []
+
+def save_settlement(s: dict):
+    settlements = load_settlements()
+    settlements.insert(0, s)
+    with SETTLEMENTS_JSON_PATH.open("w") as f:
+        json.dump({"settlements": settlements}, f, indent=2)
+
+
+# ─────────────────────────────────────────────
+# Settlement endpoint
+# ─────────────────────────────────────────────
+
+@app.post("/settle", response_model=SettleResponse)
+async def execute_settlement(req: SettleRequest):
+    """
+    Executa um settlement PIX → ADA.
+    1. Pull ADA/USD do Charli3 Pull Oracle
+    2. Pull USD/BRL do Banco Central do Brasil
+    3. Constrói e submete TX real no Cardano Preprod (PyCardano + Ogmios/Kupo)
+    4. Inclui prova do preço oracle no metadata da TX (CIP-20)
+    5. Persiste no histórico de settlements
+    """
+    if req.amount_brl <= 0:
+        raise HTTPException(status_code=400, detail="Valor deve ser positivo")
+
+    # 1. Fetch prices in parallel
+    ada_usd_data, usd_brl_data = await asyncio.gather(
+        fetch_ada_usd_from_charli3(),
+        fetch_usd_brl_from_bcb()
+    )
+
+    ada_usd = ada_usd_data["price"]
+    usd_brl = usd_brl_data["rate"]
+    ada_brl = ada_usd * usd_brl
+    ada_required = req.amount_brl / ada_brl
+    ada_with_slippage = ada_required * (1 + req.slippage_tolerance)
+
+    # 2. Load wallet and chain context
+    try:
+        from charli3_odv_client.config import ODVClientConfig
+        from charli3_odv_client.config.keys import KeyManager
+        from charli3_odv_client.cli.utils.shared import create_chain_query
+        from pycardano import (
+            Address, Network, TransactionBuilder, TransactionOutput,
+            Metadata, AuxiliaryData,
+        )
+
+        config = ODVClientConfig.from_yaml(CHARLI3_CONFIG_PATH)
+        chain_query = create_chain_query(config)
+        context = chain_query.context
+
+        skey, _, _, wallet_address = KeyManager.load_from_config(config.wallet)
+
+        recipient = (
+            Address.from_primitive(req.recipient_address)
+            if req.recipient_address
+            else wallet_address
+        )
+
+        # 2 ADA as on-chain settlement proof; full amount recorded in metadata
+        lovelace = 2_000_000
+
+        # 3. Build TX with oracle price proof in metadata (CIP-20)
+        metadata = Metadata({
+            674: {
+                "msg": ["PIX Oracle Settlement"],
+                "oracle": ada_usd_data["policy_id"],
+                "ada_usd": str(round(ada_usd, 6)),
+                "usd_brl": str(round(usd_brl, 4)),
+                "brl": str(round(req.amount_brl, 2)),
+                "ada": str(round(ada_with_slippage, 4)),
+            }
+        })
+
+        builder = TransactionBuilder(context)
+        builder.add_input_address(wallet_address)
+        builder.add_output(TransactionOutput(recipient, lovelace))
+        builder.auxiliary_data = AuxiliaryData(metadata)
+
+        tx = builder.build_and_sign([skey], change_address=wallet_address)
+        context.submit_tx(tx)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Settlement falhou: {e}")
+
+    tx_hash = str(tx.id)
+    timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    settlement = {
+        "tx_hash": tx_hash,
+        "amount_brl": req.amount_brl,
+        "ada_paid": round(ada_with_slippage, 4),
+        "ada_usd_at_settlement": ada_usd,
+        "usd_brl_at_settlement": usd_brl,
+        "pix_key": req.pix_key,
+        "timestamp": timestamp,
+        "status": "confirmed",
+    }
+    save_settlement(settlement)
+
+    return SettleResponse(
+        tx_hash=tx_hash,
+        amount_brl=req.amount_brl,
+        ada_paid=round(ada_with_slippage, 4),
+        ada_usd_price=ada_usd,
+        usd_brl_price=usd_brl,
+        oracle_policy_id=ada_usd_data["policy_id"],
+        timestamp=timestamp,
+        status="confirmed",
+        explorer_url=f"https://preprod.cexplorer.io/tx/{tx_hash}",
+    )
+
+
 @app.get("/settlements/recent")
 async def recent_settlements():
-    """Liquidações recentes (demo)."""
-    settlements = [
-        {"tx_hash": "a1b2c3d4e5f6" + "0" * 52, "amount_brl": 150.00, "ada_paid": 365.85,
-         "ada_usd_at_settlement": 0.2519, "usd_brl_at_settlement": 5.71,
-         "timestamp": "2026-04-16T10:23:11Z", "status": "confirmed"},
-        {"tx_hash": "b2c3d4e5f6a7" + "0" * 52, "amount_brl": 500.00, "ada_paid": 1220.70,
-         "ada_usd_at_settlement": 0.2521, "usd_brl_at_settlement": 5.72,
-         "timestamp": "2026-04-16T09:15:44Z", "status": "confirmed"},
-        {"tx_hash": "c3d4e5f6a7b8" + "0" * 52, "amount_brl": 75.50, "ada_paid": 184.02,
-         "ada_usd_at_settlement": 0.2518, "usd_brl_at_settlement": 5.73,
-         "timestamp": "2026-04-16T08:02:33Z", "status": "confirmed"},
-    ]
+    """Liquidações recentes — lidas do histórico persistido."""
+    settlements = load_settlements()
     return {"settlements": settlements, "total": len(settlements)}
 
 
