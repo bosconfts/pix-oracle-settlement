@@ -839,7 +839,7 @@
 
     <div class="atomic-flow">
       <div class="atomic-step">
-        <div class="atomic-icon" style="background:rgba(50,188,173,0.12);border-color:rgba(50,188,173,0.4);color:var(--pix)">₿</div>
+        <div class="atomic-icon" style="background:rgba(50,188,173,0.12);border-color:rgba(50,188,173,0.4);color:var(--pix);font-weight:800;font-size:22px">R</div>
         <div class="atomic-label">Payer sends<br><strong>BRL via PIX</strong></div>
       </div>
       <div class="atomic-arrow">→</div>
@@ -1435,8 +1435,6 @@ Each settlement includes:
       document.getElementById('wallet-balance').textContent = `${ada} ₳`;
       document.getElementById('wallet-info').style.display = 'flex';
       btn.textContent = '✓ Eternl';
-      btn.style.borderColor = 'var(--accent)';
-      btn.style.color = 'var(--accent)';
 
     } catch (e) {
       btn.disabled = false;
