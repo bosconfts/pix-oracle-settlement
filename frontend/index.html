@@ -172,6 +172,106 @@
     line-height: 1.6;
   }
 
+  /* Atomic swap flow */
+  .atomic-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 28px 0 8px;
+    flex-wrap: wrap;
+  }
+  .atomic-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .atomic-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .atomic-label {
+    font-size: 11px;
+    color: var(--text2);
+    text-align: center;
+    line-height: 1.4;
+    font-family: 'Space Mono', monospace;
+  }
+  .atomic-label strong { color: var(--text); }
+  .atomic-arrow {
+    font-size: 18px;
+    color: var(--text2);
+    margin-bottom: 20px;
+  }
+
+  /* PIX context banner */
+  .pix-banner {
+    background: var(--surface);
+    border: 1px solid rgba(50,188,173,0.3);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+  }
+  .pix-banner-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--pix);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
+    font-family: 'Space Mono', monospace;
+  }
+  .pix-banner-stats {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pix-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 80px;
+  }
+  .pix-stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--pix);
+    font-family: 'Syne', sans-serif;
+    line-height: 1.1;
+  }
+  .pix-stat-label {
+    font-size: 10px;
+    color: var(--text2);
+    font-family: 'Space Mono', monospace;
+    text-align: center;
+    margin-top: 3px;
+  }
+  .pix-stat-divider {
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  .pix-banner-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.65;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+  .pix-banner-desc strong { color: var(--text); }
+
   /* Wallet widget */
   .wallet-widget {
     display: flex;
@@ -206,7 +306,7 @@
     font-family: 'Space Mono', monospace;
     font-size: 11px;
   }
-  .wallet-addr { color: var(--text3); }
+  .wallet-addr { color: var(--text2); }
   .wallet-balance { color: var(--accent); font-weight: 700; }
 
   /* Oracle ticker */
@@ -228,7 +328,7 @@
 
   .ticker-label {
     font-size: 10px;
-    color: var(--text3);
+    color: var(--text2);
     font-family: 'Space Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -243,7 +343,7 @@
   }
 
   .ticker-value.loading {
-    color: var(--text3);
+    color: var(--text2);
     animation: pulse 1.5s infinite;
   }
 
@@ -311,7 +411,7 @@
   .card-label {
     font-size: 11px;
     font-weight: 700;
-    color: var(--text3);
+    color: var(--text2);
     text-transform: uppercase;
     letter-spacing: 1.5px;
     font-family: 'Space Mono', monospace;
@@ -572,7 +672,7 @@
 
   .flow-label {
     font-size: 10px;
-    color: var(--text3);
+    color: var(--text2);
     font-family: 'Space Mono', monospace;
     line-height: 1.3;
   }
@@ -604,7 +704,7 @@
 
   .stat-label {
     font-size: 11px;
-    color: var(--text3);
+    color: var(--text2);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: 'Space Mono', monospace;
@@ -680,7 +780,7 @@
     padding: 14px;
     font-family: 'Space Mono', monospace;
     font-size: 11px;
-    color: var(--text3);
+    color: var(--text2);
     line-height: 1.8;
     word-break: break-all;
   }
@@ -732,10 +832,27 @@
   <div class="hero">
     <div class="hero-tag">🏆 Charli3 Hackathon 2026 · Real World Settlements</div>
     <h1>
-      Liquide <span class="highlight-pix">PIX</span><br>
-      Receba <span class="highlight-ada">ADA</span> — no preço justo
+      <span class="highlight-pix">PIX</span> ⇄ <span class="highlight-ada">ADA</span><br>
+      Atomic Swap
     </h1>
-    <p>Smart contract em Cardano que usa o Charli3 Pull Oracle para calcular conversões BRL/ADA no momento exato da liquidação. Zero intermediários, preço auditável on-chain.</p>
+    <p>A trustless atomic swap between Brazil's PIX instant payment network and Cardano. ADA is locked in a smart contract — the <strong>Charli3 Pull Oracle</strong> fetches the verified ADA/USD price on-demand at the exact moment of settlement. No intermediaries. No slippage surprises. The rate is provably on-chain.</p>
+
+    <div class="atomic-flow">
+      <div class="atomic-step">
+        <div class="atomic-icon" style="background:rgba(50,188,173,0.12);border-color:rgba(50,188,173,0.4);color:var(--pix)">₿</div>
+        <div class="atomic-label">Payer sends<br><strong>BRL via PIX</strong></div>
+      </div>
+      <div class="atomic-arrow">→</div>
+      <div class="atomic-step">
+        <div class="atomic-icon" style="background:rgba(245,166,35,0.12);border-color:rgba(245,166,35,0.4);color:var(--c3)">⬡</div>
+        <div class="atomic-label">Charli3 Oracle<br><strong>pulls ADA/USD</strong></div>
+      </div>
+      <div class="atomic-arrow">→</div>
+      <div class="atomic-step">
+        <div class="atomic-icon" style="background:rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.4);color:var(--accent2)">◈</div>
+        <div class="atomic-label">Contract releases<br><strong>ADA on-chain</strong></div>
+      </div>
+    </div>
     
     <div class="oracle-ticker" id="oracle-ticker">
       <div class="ticker-item">
@@ -747,19 +864,19 @@
       <div class="ticker-item">
         <span class="ticker-label">USD/BRL</span>
         <span class="ticker-value loading" id="tick-usd-brl">—</span>
-        <span class="ticker-source">Banco Central</span>
+        <span class="ticker-source">Central Bank</span>
       </div>
       <div class="ticker-divider"></div>
       <div class="ticker-item">
         <span class="ticker-label">ADA/BRL</span>
         <span class="ticker-value loading" id="tick-ada-brl">—</span>
-        <span class="ticker-source">Calculado</span>
+        <span class="ticker-source">Calculated</span>
       </div>
     </div>
 
     <div class="wallet-widget">
       <button class="btn-wallet" id="btn-wallet" onclick="connectWallet()">
-        ⬡ Conectar Eternl
+        ⬡ Connect Eternl
       </button>
       <div class="wallet-info" id="wallet-info" style="display:none">
         <span class="wallet-addr" id="wallet-addr">—</span>
@@ -768,19 +885,51 @@
     </div>
   </div>
 
+  <!-- PIX context banner -->
+  <div class="pix-banner">
+    <div class="pix-banner-title">🇧🇷 What is PIX?</div>
+    <div class="pix-banner-stats">
+      <div class="pix-stat">
+        <span class="pix-stat-value">$5T USD</span>
+        <span class="pix-stat-label">processed in 2025</span>
+      </div>
+      <div class="pix-stat-divider"></div>
+      <div class="pix-stat">
+        <span class="pix-stat-value">50B+</span>
+        <span class="pix-stat-label">transactions / year</span>
+      </div>
+      <div class="pix-stat-divider"></div>
+      <div class="pix-stat">
+        <span class="pix-stat-value">160M</span>
+        <span class="pix-stat-label">Brazilians use it daily</span>
+      </div>
+      <div class="pix-stat-divider"></div>
+      <div class="pix-stat">
+        <span class="pix-stat-value">24/7</span>
+        <span class="pix-stat-label">instant settlement</span>
+      </div>
+    </div>
+    <div class="pix-banner-desc">
+      PIX is Brazil's national instant payment network — bigger than Venmo, CashApp, and Zelle combined.
+      Every payment settles in under 3 seconds. <strong>PIX Oracle Settlement</strong> bridges this
+      infrastructure to Cardano: lock ADA in a smart contract, confirm a PIX payment, and the
+      Charli3 Pull Oracle guarantees the exchange rate at the exact moment of settlement.
+    </div>
+  </div>
+
   <!-- Stats row -->
   <div class="grid-3" style="margin-bottom:32px;">
     <div class="stat-card">
       <div class="stat-value" style="color:var(--pix)">R$ <span id="stat-volume">—</span></div>
-      <div class="stat-label">Volume Liquidado</div>
+      <div class="stat-label">Volume Settled</div>
     </div>
     <div class="stat-card">
       <div class="stat-value" style="color:var(--accent2)"><span id="stat-txs">—</span></div>
-      <div class="stat-label">Settlements Hoje</div>
+      <div class="stat-label">Settlements Today</div>
     </div>
     <div class="stat-card">
       <div class="stat-value" style="color:var(--green)">99.9%</div>
-      <div class="stat-label">Uptime Oracle</div>
+      <div class="stat-label">Oracle Uptime</div>
     </div>
   </div>
 
@@ -789,13 +938,13 @@
 
     <!-- Settlement Form -->
     <div class="card card-pix">
-      <div class="card-label"><span class="dot dot-green"></span> Nova Liquidação</div>
+      <div class="card-label"><span class="dot dot-green"></span> New Settlement</div>
 
       <!-- Flow -->
       <div class="flow">
         <div class="flow-step">
           <div class="flow-icon active" id="step1-icon">💸</div>
-          <span class="flow-label">Valor<br>em BRL</span>
+          <span class="flow-label">Amount<br>in BRL</span>
         </div>
         <div class="flow-arrow"></div>
         <div class="flow-step">
@@ -805,34 +954,34 @@
         <div class="flow-arrow"></div>
         <div class="flow-step">
           <div class="flow-icon" id="step3-icon">🔐</div>
-          <span class="flow-label">Contrato<br>Validado</span>
+          <span class="flow-label">Contract<br>Validated</span>
         </div>
         <div class="flow-arrow"></div>
         <div class="flow-step">
           <div class="flow-icon" id="step4-icon">✅</div>
-          <span class="flow-label">ADA<br>Liberado</span>
+          <span class="flow-label">ADA<br>Released</span>
         </div>
       </div>
 
       <!-- Form -->
       <div class="form-group">
-        <label class="form-label">Valor em BRL</label>
+        <label class="form-label">Amount in BRL</label>
         <div class="input-wrapper">
           <span class="input-prefix">R$</span>
-          <input type="number" id="input-brl" placeholder="0,00" value="100" step="0.01" min="0">
+          <input type="number" id="input-brl" placeholder="0.00" value="100" step="0.01" min="0">
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Chave PIX do Recebedor</label>
+        <label class="form-label">Recipient PIX Key</label>
         <div class="input-wrapper">
-          <input type="text" id="input-pix" placeholder="CPF, e-mail, telefone ou chave aleatória"
+          <input type="text" id="input-pix" placeholder="CPF, email, phone or random key"
             value="bosconfts@gmail.com">
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Endereço Cardano do Recebedor</label>
+        <label class="form-label">Recipient Cardano Address</label>
         <div class="input-wrapper">
           <input type="text" class="input-address" id="input-addr"
             placeholder="addr_test1..."
@@ -841,7 +990,7 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">Tolerância de Slippage</label>
+        <label class="form-label">Slippage Tolerance</label>
         <div class="slippage-buttons">
           <button class="slippage-btn" onclick="setSlippage(0.005)">0.5%</button>
           <button class="slippage-btn active" onclick="setSlippage(0.01)">1%</button>
@@ -853,32 +1002,32 @@
       <!-- Quote box -->
       <div class="quote-box" id="quote-box" style="display:none">
         <div class="quote-row">
-          <span class="quote-row-label">Preço ADA/USD <span class="oracle-badge">⬡ Charli3</span></span>
+          <span class="quote-row-label">ADA/USD Price <span class="oracle-badge">⬡ Charli3</span></span>
           <span class="quote-row-value" id="q-ada-usd">—</span>
         </div>
         <div class="quote-row">
-          <span class="quote-row-label">Cotação USD/BRL (BCB)</span>
+          <span class="quote-row-label">USD/BRL Rate (Central Bank)</span>
           <span class="quote-row-value" id="q-usd-brl">—</span>
         </div>
         <div class="quote-row">
-          <span class="quote-row-label">ADA/BRL calculado</span>
+          <span class="quote-row-label">ADA/BRL calculated</span>
           <span class="quote-row-value" id="q-ada-brl">—</span>
         </div>
         <div class="quote-row">
-          <span class="quote-row-label">ADA necessário</span>
+          <span class="quote-row-label">ADA required</span>
           <span class="quote-row-value highlight" id="q-ada-required">—</span>
         </div>
         <div class="quote-row">
-          <span class="quote-row-label">Com slippage (<span id="q-slippage-pct">—</span>)</span>
+          <span class="quote-row-label">With slippage (<span id="q-slippage-pct">—</span>)</span>
           <span class="quote-row-value" id="q-ada-slippage">—</span>
         </div>
       </div>
 
       <button class="btn-primary" id="btn-quote" onclick="getQuote()">
-        ⬡ Buscar Cotação do Oracle
+        ⬡ Get Oracle Quote
       </button>
       <button class="btn-secondary" id="btn-settle" onclick="executeSettlement()" style="display:none">
-        🔐 Executar Settlement On-Chain
+        🔐 Execute Settlement On-Chain
       </button>
     </div>
 
@@ -889,25 +1038,25 @@
       <div class="card">
         <div class="card-label"><span class="dot"></span> Oracle Proof — Charli3 Pull</div>
         <div class="proof-box" id="oracle-proof">
-<span class="proof-key">status:</span> <span class="proof-val">aguardando cotação...</span>
+<span class="proof-key">status:</span> <span class="proof-val">waiting for quote...</span>
 
-<span class="proof-val">O Charli3 Pull Oracle consulta os
-nodes sob demanda e agrega a mediana
-dos preços com consenso criptográfico.
+<span class="proof-val">The Charli3 Pull Oracle queries nodes
+on-demand and aggregates the median
+price with cryptographic consensus.
 
-Cada settlement inclui:
-— policy_id do oracle NFT
-— tx_hash da agregação
-— mediana verificável on-chain</span>
+Each settlement includes:
+— oracle NFT policy_id
+— aggregation tx_hash
+— verifiable on-chain median</span>
         </div>
       </div>
 
       <!-- Recent settlements -->
       <div class="card" style="flex:1">
-        <div class="card-label"><span class="dot dot-green"></span> Settlements Recentes</div>
+        <div class="card-label"><span class="dot dot-green"></span> Recent Settlements</div>
         <div id="settlements-list">
-          <div style="text-align:center; color:var(--text3); padding:20px; font-family:'Space Mono',monospace; font-size:12px;">
-            carregando...
+          <div style="text-align:center; color:var(--text2); padding:20px; font-family:'Space Mono',monospace; font-size:12px;">
+            loading...
           </div>
         </div>
       </div>
@@ -917,27 +1066,27 @@ Cada settlement inclui:
 
   <!-- Architecture -->
   <div class="card" style="margin-top:0">
-    <div class="section-title"><span class="icon">🏗</span> Arquitetura</div>
+    <div class="section-title"><span class="icon">🏗</span> Architecture</div>
     <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px;">
       <div style="text-align:center; padding:16px; background:var(--bg2); border-radius:10px; border:1px solid var(--border)">
         <div style="font-size:28px;margin-bottom:8px">📱</div>
         <div style="font-weight:700;margin-bottom:4px;font-size:14px">Frontend</div>
-        <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">React · Next.js<br>Lucide Icons</div>
+        <div style="font-size:11px;color:var(--text2);font-family:'Space Mono',monospace">React · Next.js<br>Lucide Icons</div>
       </div>
       <div style="text-align:center; padding:16px; background:rgba(245,166,35,0.05); border-radius:10px; border:1px solid rgba(245,166,35,0.2)">
         <div style="font-size:28px;margin-bottom:8px">⬡</div>
         <div style="font-weight:700;margin-bottom:4px;font-size:14px;color:var(--c3)">Charli3 Oracle</div>
-        <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">Pull Oracle V3<br>ODV Client SDK</div>
+        <div style="font-size:11px;color:var(--text2);font-family:'Space Mono',monospace">Pull Oracle V3<br>ODV Client SDK</div>
       </div>
       <div style="text-align:center; padding:16px; background:var(--bg2); border-radius:10px; border:1px solid var(--border)">
         <div style="font-size:28px;margin-bottom:8px">🏦</div>
-        <div style="font-weight:700;margin-bottom:4px;font-size:14px">Banco Central</div>
-        <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">API PTAX<br>Cotação USD/BRL</div>
+        <div style="font-weight:700;margin-bottom:4px;font-size:14px">Central Bank</div>
+        <div style="font-size:11px;color:var(--text2);font-family:'Space Mono',monospace">PTAX API<br>USD/BRL Rate</div>
       </div>
       <div style="text-align:center; padding:16px; background:rgba(99,102,241,0.05); border-radius:10px; border:1px solid var(--border2)">
         <div style="font-size:28px;margin-bottom:8px">🔐</div>
-        <div style="font-weight:700;margin-bottom:4px;font-size:14px;color:var(--accent2)">Contrato Aiken</div>
-        <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">Plutus V3<br>Settlement Validator</div>
+        <div style="font-weight:700;margin-bottom:4px;font-size:14px;color:var(--accent2)">Aiken Contract</div>
+        <div style="font-size:11px;color:var(--text2);font-family:'Space Mono',monospace">Plutus V3<br>Settlement Validator</div>
       </div>
     </div>
   </div>
@@ -1007,13 +1156,13 @@ Cada settlement inclui:
   async function getQuote() {
     const amountBrl = parseFloat(document.getElementById('input-brl').value);
     if (!amountBrl || amountBrl <= 0) {
-      showToast('Insira um valor em BRL válido', 'error');
+      showToast('Please enter a valid BRL amount', 'error');
       return;
     }
 
     const btn = document.getElementById('btn-quote');
     btn.disabled = true;
-    btn.textContent = '⬡ Consultando oracle...';
+    btn.textContent = '⬡ Fetching oracle price...';
 
     // Animate steps
     setStepActive(1);
@@ -1044,17 +1193,17 @@ Cada settlement inclui:
       // Update oracle proof
       updateOracleProof(data);
       
-      showToast('Cotação obtida do Charli3 Oracle ⬡', 'success');
-      
+      showToast('Quote fetched from Charli3 Oracle ⬡', 'success');
+
     } catch (e) {
-      showToast('Erro ao consultar oracle. Usando fallback.', 'error');
+      showToast('Oracle unreachable. Using fallback.', 'error');
       const mock = getMockQuote(amountBrl);
       currentQuote = mock;
       updateQuoteDisplay(mock);
     }
 
     btn.disabled = false;
-    btn.textContent = '⬡ Atualizar Cotação';
+    btn.textContent = '⬡ Refresh Quote';
   }
 
   function getMockQuote(amountBrl) {
@@ -1185,11 +1334,11 @@ Cada settlement inclui:
       <div class="settlement-item">
         <div>
           <a class="settlement-hash" href="https://preprod.cexplorer.io/tx/${s.tx_hash}" target="_blank" rel="noopener">${s.tx_hash.slice(0,16)}...</a>
-          <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace;margin-top:2px">${formatTime(s.timestamp)}</div>
+          <div style="font-size:11px;color:var(--text2);font-family:'Space Mono',monospace;margin-top:2px">${formatTime(s.timestamp)}</div>
         </div>
         <div style="text-align:right">
           <div class="settlement-amount" style="color:var(--pix)">R$ ${s.amount_brl.toFixed(2)}</div>
-          <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">${s.ada_paid.toFixed(2)} ADA</div>
+          <div style="font-size:11px;color:var(--text2);font-family:'Space Mono',monospace">${s.ada_paid.toFixed(2)} ADA</div>
         </div>
         <span class="settlement-status">${s.status}</span>
       </div>
@@ -1202,11 +1351,11 @@ Cada settlement inclui:
       <div class="settlement-item" style="animation: slideIn 0.3s ease">
         <div>
           <a class="settlement-hash" href="https://preprod.cexplorer.io/tx/${s.tx_hash}" target="_blank" rel="noopener">${s.tx_hash.slice(0,16)}...</a>
-          <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace;margin-top:2px">agora</div>
+          <div style="font-size:11px;color:var(--text2);font-family:'Space Mono',monospace;margin-top:2px">just now</div>
         </div>
         <div style="text-align:right">
           <div class="settlement-amount" style="color:var(--pix)">R$ ${s.amount_brl.toFixed(2)}</div>
-          <div style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">${s.ada_paid.toFixed(2)} ADA</div>
+          <div style="font-size:11px;color:var(--text2);font-family:'Space Mono',monospace">${s.ada_paid.toFixed(2)} ADA</div>
         </div>
         <span class="settlement-status">confirmed</span>
       </div>`;
@@ -1258,7 +1407,7 @@ Cada settlement inclui:
     const btn = document.getElementById('btn-wallet');
 
     if (!window.cardano || !window.cardano.eternl) {
-      showToast('Eternl não encontrado. Instale a extensão em eternl.io', 'error');
+      showToast('Eternl not found. Install the extension at eternl.io', 'error');
       return;
     }
 
@@ -1292,7 +1441,7 @@ Cada settlement inclui:
     } catch (e) {
       btn.disabled = false;
       btn.textContent = '⬡ Conectar Eternl';
-      showToast(`Erro ao conectar: ${e.message || e}`, 'error');
+      showToast(`Connection error: ${e.message || e}`, 'error');
     }
   }
 
