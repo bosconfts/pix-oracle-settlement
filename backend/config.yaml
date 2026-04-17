@@ -1,10 +1,12 @@
 # ODV Client configuration file — ADA/USD Preprod
 # Source: https://github.com/Charli3-Official/hackathon-resources/configs/ada-usd-preprod.yml
+# Day 2: Migrated from Blockfrost to Ogmios/Kupo (Charli3 hosted preprod instance)
 
 network:
   network: "testnet"
-  blockfrost:
-    project_id: $BLOCKFROST_API_KEY
+  ogmios_kupo:
+    ogmios_url: "ws://35.209.192.203:1337/"
+    kupo_url: "http://35.209.192.203:1442/"
 
 wallet:
   mnemonic: $WALLET_MNEMONIC
