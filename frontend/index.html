@@ -1175,14 +1175,7 @@ Cada settlement inclui:
       document.getElementById('stat-txs').textContent = settlements.length;
       
     } catch {
-      // Mock
-      renderSettlements([
-        { tx_hash: 'a1b2c3d4e5f6789012345678', amount_brl: 150.00, ada_paid: 365.85, timestamp: '2026-04-14T10:23Z', status: 'confirmed' },
-        { tx_hash: 'b2c3d4e5f6789012345678ab', amount_brl: 500.00, ada_paid: 1220.70, timestamp: '2026-04-14T09:15Z', status: 'confirmed' },
-        { tx_hash: 'c3d4e5f6789012345678abc1', amount_brl: 75.50, ada_paid: 184.02, timestamp: '2026-04-14T08:02Z', status: 'confirmed' },
-      ]);
-      document.getElementById('stat-volume').textContent = '725.50';
-      document.getElementById('stat-txs').textContent = '3';
+      renderSettlements([]);
     }
   }
 
