@@ -172,6 +172,43 @@
     line-height: 1.6;
   }
 
+  /* Wallet widget */
+  .wallet-widget {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    justify-content: center;
+  }
+
+  .btn-wallet {
+    background: transparent;
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    transition: background 0.2s;
+  }
+  .btn-wallet:hover { background: rgba(100,200,255,0.08); }
+  .btn-wallet:disabled { opacity: 0.5; cursor: default; }
+
+  .wallet-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+  }
+  .wallet-addr { color: var(--text3); }
+  .wallet-balance { color: var(--accent); font-weight: 700; }
+
   /* Oracle ticker */
   .oracle-ticker {
     display: inline-flex;
@@ -719,6 +756,16 @@
         <span class="ticker-source">Calculado</span>
       </div>
     </div>
+
+    <div class="wallet-widget">
+      <button class="btn-wallet" id="btn-wallet" onclick="connectWallet()">
+        ⬡ Conectar Eternl
+      </button>
+      <div class="wallet-info" id="wallet-info" style="display:none">
+        <span class="wallet-addr" id="wallet-addr">—</span>
+        <span class="wallet-balance" id="wallet-balance">—</span>
+      </div>
+    </div>
   </div>
 
   <!-- Stats row -->
@@ -1212,6 +1259,80 @@ Cada settlement inclui:
   }
 
   function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  // ─── Eternl Wallet (CIP-30) ───
+  async function connectWallet() {
+    const btn = document.getElementById('btn-wallet');
+
+    if (!window.cardano || !window.cardano.eternl) {
+      showToast('Eternl não encontrado. Instale a extensão em eternl.io', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Conectando...';
+
+    try {
+      const api = await window.cardano.eternl.enable();
+
+      // Address
+      const rawAddrs = await api.getUsedAddresses();
+      const addrHex = rawAddrs[0] || (await api.getUnusedAddresses())[0];
+      const addrShort = addrHex
+        ? addrHex.slice(0, 12) + '...' + addrHex.slice(-6)
+        : '—';
+
+      // Balance (CBOR-encoded Value)
+      const balHex = await api.getBalance();
+      const lovelace = decodeCborLovelace(balHex);
+      const ada = (lovelace / 1_000_000).toLocaleString('pt-BR', {
+        minimumFractionDigits: 2, maximumFractionDigits: 2
+      });
+
+      document.getElementById('wallet-addr').textContent = addrShort;
+      document.getElementById('wallet-balance').textContent = `${ada} ₳`;
+      document.getElementById('wallet-info').style.display = 'flex';
+      btn.textContent = '✓ Eternl';
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.color = 'var(--accent)';
+
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = '⬡ Conectar Eternl';
+      showToast(`Erro ao conectar: ${e.message || e}`, 'error');
+    }
+  }
+
+  // Decode CIP-30 getBalance() CBOR hex → lovelace integer
+  // Handles: plain integer OR [lovelace, multiasset] array
+  function decodeCborLovelace(hex) {
+    const b = hex.match(/.{2}/g).map(x => parseInt(x, 16));
+    return readCborUint(b, { pos: 0 });
+  }
+
+  function readCborUint(b, cur) {
+    const first = b[cur.pos++];
+    const mt = first >> 5;      // major type
+    const ai = first & 0x1f;    // additional info
+
+    // Major type 4 = array → read first element (lovelace)
+    if (mt === 4) return readCborUint(b, cur);
+
+    // Major type 0 = unsigned int
+    if (ai <= 23) return ai;
+    if (ai === 24) return b[cur.pos++];
+    if (ai === 25) { const v = (b[cur.pos] << 8) | b[cur.pos + 1]; cur.pos += 2; return v; }
+    if (ai === 26) {
+      const v = (b[cur.pos] * 2**24) + (b[cur.pos+1] << 16) + (b[cur.pos+2] << 8) + b[cur.pos+3];
+      cur.pos += 4; return v;
+    }
+    if (ai === 27) {
+      let v = 0n;
+      for (let i = 0; i < 8; i++) v = (v << 8n) | BigInt(b[cur.pos++]);
+      return Number(v);
+    }
+    return 0;
+  }
 
   function debounce(fn, ms) {
     let t;
