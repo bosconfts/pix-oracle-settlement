@@ -13,6 +13,7 @@ import time
 import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
@@ -43,6 +44,7 @@ app.add_middleware(
 CHARLI3_CONFIG_PATH = Path(__file__).parent / "config.yaml"
 FEEDS_JSON_PATH = Path(__file__).parent / "feeds.json"
 SETTLEMENTS_JSON_PATH = Path(__file__).parent / "settlements.json"
+FRONTEND_PATH = Path(__file__).parent.parent.parent / "frontend" / "index.html"
 
 BCB_API_URL = "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)"
 
@@ -198,6 +200,32 @@ async def fetch_usd_brl_from_bcb() -> dict:
 
 
 # ─────────────────────────────────────────────
+# Helpers
+# ─────────────────────────────────────────────
+
+def _bech32_to_bytes(addr_str: str) -> bytes:
+    """Decode a bech32 Cardano address (addr1.../addr_test1...) to raw bytes."""
+    CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
+    s = addr_str.lower()
+    sep = s.rfind("1")
+    if sep < 1:
+        raise ValueError(f"Invalid bech32 address: {addr_str}")
+    data_part = s[sep + 1:]
+    values = [CHARSET.find(c) for c in data_part]
+    if any(v == -1 for v in values):
+        raise ValueError(f"Invalid bech32 character in address: {addr_str}")
+    # Drop last 6 chars (checksum), convert 5-bit groups → 8-bit bytes
+    acc, bits, result = 0, 0, []
+    for v in values[:-6]:
+        acc = ((acc << 5) | v) & 0xFFFFFFFF
+        bits += 5
+        while bits >= 8:
+            bits -= 8
+            result.append((acc >> bits) & 0xFF)
+    return bytes(result)
+
+
+# ─────────────────────────────────────────────
 # Endpoints
 # ─────────────────────────────────────────────
 
@@ -207,8 +235,15 @@ async def root():
         "project": "PIX Oracle Settlement",
         "hackathon": "Charli3 Oracles Hackathon 2026",
         "track": "Real World Settlements",
-        "docs": "/docs"
+        "docs": "/docs",
+        "app": "/app"
     }
+
+
+@app.get("/app")
+async def frontend():
+    """Serve the frontend — use http://localhost:8000/app for wallet connect."""
+    return FileResponse(FRONTEND_PATH)
 
 
 @app.get("/oracle/status", response_model=OracleStatus)
@@ -347,11 +382,11 @@ async def execute_settlement(req: SettleRequest):
 
         skey, _, _, wallet_address = KeyManager.load_from_config(config.wallet)
 
-        recipient = (
-            Address.from_primitive(req.recipient_address)
-            if req.recipient_address
-            else wallet_address
-        )
+        if req.recipient_address:
+            addr_bytes = _bech32_to_bytes(req.recipient_address)
+            recipient = Address.from_primitive(addr_bytes)
+        else:
+            recipient = wallet_address
 
         # 2 ADA as on-chain settlement proof; full amount recorded in metadata
         lovelace = 2_000_000
