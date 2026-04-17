@@ -777,10 +777,18 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">Endereço Destinatário (Cardano)</label>
+        <label class="form-label">Chave PIX do Recebedor</label>
         <div class="input-wrapper">
-          <input type="text" class="input-address" id="input-addr" 
-            placeholder="addr_test1..." 
+          <input type="text" id="input-pix" placeholder="CPF, e-mail, telefone ou chave aleatória"
+            value="bosconfts@gmail.com">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Endereço Cardano do Recebedor</label>
+        <div class="input-wrapper">
+          <input type="text" class="input-address" id="input-addr"
+            placeholder="addr_test1..."
             value="addr_test1qpkxr3kpzex93m646qr7w82d56md2kchtsv9jy39dykn4cmcxuunx95u4a6p96e58flkl0sk08f2pa9nmxxnl3zfnxs9djf7he">
         </div>
       </div>
@@ -1054,12 +1062,17 @@ Cada settlement inclui:
     setStepActive(3);
 
     try {
+      const recipientAddr = document.getElementById('input-addr').value.trim() || null;
+      const pixKey = document.getElementById('input-pix').value.trim() || null;
+
       const res = await fetch(`${API}/settle`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount_brl: currentQuote.amount_brl,
           slippage_tolerance: currentSlippage,
+          recipient_address: recipientAddr,
+          pix_key: pixKey,
         }),
       });
 
