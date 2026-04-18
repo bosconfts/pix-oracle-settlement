@@ -416,7 +416,14 @@ async def execute_settlement(req: SettleRequest):
         builder.auxiliary_data = AuxiliaryData(metadata)
 
         tx = builder.build_and_sign([skey], change_address=wallet_address)
-        context.submit_tx(tx)
+        try:
+            context.submit_tx(tx)
+        except Exception as submit_err:
+            err_str = str(submit_err)
+            # "All inputs are spent" / "already been included" means the TX was
+            # already accepted by the node — not a real failure, treat as success.
+            if "All inputs are spent" not in err_str and "already been included" not in err_str:
+                raise
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Settlement falhou: {e}")
