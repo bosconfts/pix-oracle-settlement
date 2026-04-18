@@ -1991,9 +1991,28 @@ Each settlement includes:
       });
 
       if (!res.ok) {
-        let detail = `HTTP ${res.status}`;
-        try { detail = (await res.json()).detail || detail; } catch (_) {}
-        throw new Error(detail);
+        let body = {};
+        try { body = await res.json(); } catch (_) {}
+
+        // Wallet busy — previous TX still processing
+        if (res.status === 409 && body.detail?.error === 'wallet_busy') {
+          const d = body.detail;
+          if (d.last_tx_hash) {
+            document.getElementById('oracle-proof').innerHTML =
+              `<span style="color:var(--yellow)">⏳ Previous TX still processing</span>\n\n` +
+              `<span class="proof-key">message:</span> <span class="proof-val">${d.message}</span>\n\n` +
+              `<span class="proof-key">last_tx:</span>\n<a href="${d.last_explorer_url}" target="_blank" style="color:var(--pix);word-break:break-all">${d.last_tx_hash}</a>`;
+            showToast('⏳ Previous TX processing — check link in Oracle Proof box', 'error');
+          } else {
+            showToast(`⏳ ${d.message}`, 'error');
+          }
+          btn.disabled = false;
+          btn.textContent = '🔐 Execute Settlement On-Chain';
+          setStepActive(1);
+          return;
+        }
+
+        throw new Error(body.detail?.message || body.detail || `HTTP ${res.status}`);
       }
 
       const data = await res.json();

@@ -420,10 +420,23 @@ async def execute_settlement(req: SettleRequest):
             context.submit_tx(tx)
         except Exception as submit_err:
             err_str = str(submit_err)
-            # "All inputs are spent" / "already been included" means the TX was
-            # already accepted by the node — not a real failure, treat as success.
-            if "All inputs are spent" not in err_str and "already been included" not in err_str:
-                raise
+            if "All inputs are spent" in err_str or "already been included" in err_str:
+                # Wallet UTxOs still locked from a recent TX — check settlements.json
+                # for the last confirmed hash and return it instead
+                recent = load_settlements()
+                if recent:
+                    last = recent[0]
+                    raise HTTPException(status_code=409, detail={
+                        "error": "wallet_busy",
+                        "message": "Previous transaction still processing. Wait ~30 seconds.",
+                        "last_tx_hash": last.get("tx_hash"),
+                        "last_explorer_url": f"https://preprod.cexplorer.io/tx/{last.get('tx_hash')}",
+                    })
+                raise HTTPException(status_code=409, detail={
+                    "error": "wallet_busy",
+                    "message": "Previous transaction still processing. Wait ~30 seconds and try again.",
+                })
+            raise
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Settlement falhou: {e}")
