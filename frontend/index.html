@@ -2204,6 +2204,49 @@ Each settlement includes:
 
   function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+  // ─── Bech32 encoder (hex address → addr_test1.../addr1...) ───
+  function hexAddrToBech32(hex) {
+    const CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+    const bytes = hex.match(/.{2}/g).map(b => parseInt(b, 16));
+    // Network id from header byte: 0 = testnet, 1 = mainnet
+    const networkId = bytes[0] & 0x0F;
+    const hrp = networkId === 1 ? 'addr' : 'addr_test';
+
+    function convertBits(data, from, to, pad) {
+      let acc = 0, bits = 0;
+      const out = [];
+      for (const v of data) {
+        acc = (acc << from) | v;
+        bits += from;
+        while (bits >= to) { bits -= to; out.push((acc >> bits) & ((1 << to) - 1)); }
+      }
+      if (pad && bits > 0) out.push((acc << (to - bits)) & ((1 << to) - 1));
+      return out;
+    }
+    function hrpExpand(h) {
+      const r = [];
+      for (let i = 0; i < h.length; i++) r.push(h.charCodeAt(i) >> 5);
+      r.push(0);
+      for (let i = 0; i < h.length; i++) r.push(h.charCodeAt(i) & 31);
+      return r;
+    }
+    function polymod(v) {
+      const G = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+      let c = 1;
+      for (const d of v) {
+        const b = c >> 25;
+        c = ((c & 0x1ffffff) << 5) ^ d;
+        for (let i = 0; i < 5; i++) if ((b >> i) & 1) c ^= G[i];
+      }
+      return c;
+    }
+
+    const data5 = convertBits(bytes, 8, 5, true);
+    const chk = polymod([...hrpExpand(hrp), ...data5, 0, 0, 0, 0, 0, 0]) ^ 1;
+    const cs = Array.from({length: 6}, (_, i) => (chk >> ((5 - i) * 5)) & 31);
+    return hrp + '1' + [...data5, ...cs].map(v => CHARSET[v]).join('');
+  }
+
   // ─── Eternl Wallet (CIP-30) ───
   async function connectWallet() {
     const btn = document.getElementById('btn-wallet');
@@ -2219,25 +2262,20 @@ Each settlement includes:
     try {
       const api = await window.cardano.eternl.enable();
 
-      // Address — CIP-30 returns hex-encoded CBOR; decode to bech32
+      // Address — CIP-30 returns raw hex bytes; convert to bech32
       const rawAddrs = await api.getUsedAddresses();
       const addrHex = rawAddrs[0] || (await api.getUnusedAddresses())[0];
 
-      // Convert hex address to bech32 via Cardano's own serialization
-      let addrBech32 = addrHex || '';
+      let addrBech32 = '';
       try {
-        // CIP-30 addresses are raw CBOR bytes as hex; use Address.from_bytes if available,
-        // otherwise just display the hex shortened
-        if (window.CardanoWasm) {
-          addrBech32 = window.CardanoWasm.Address.from_bytes(
-            Uint8Array.from(addrHex.match(/.{2}/g).map(b => parseInt(b, 16)))
-          ).to_bech32();
-        }
-      } catch (_) {}
+        addrBech32 = hexAddrToBech32(addrHex);
+      } catch (_) {
+        addrBech32 = addrHex; // fallback: send hex, backend handles it
+      }
 
       const addrShort = addrBech32
         ? addrBech32.slice(0, 16) + '...' + addrBech32.slice(-6)
-        : (addrHex ? addrHex.slice(0, 12) + '...' + addrHex.slice(-6) : '—');
+        : '—';
 
       // Balance (CBOR-encoded Value)
       const balHex = await api.getBalance();

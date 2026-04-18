@@ -203,18 +203,25 @@ async def fetch_usd_brl_from_bcb() -> dict:
 # Helpers
 # ─────────────────────────────────────────────
 
-def _bech32_to_bytes(addr_str: str) -> bytes:
-    """Decode a bech32 Cardano address (addr1.../addr_test1...) to raw bytes."""
+def _addr_to_bytes(addr_str: str) -> bytes:
+    """
+    Decode a Cardano address to raw bytes.
+    Accepts bech32 (addr1.../addr_test1...) or raw hex (CIP-30 wallet response).
+    """
+    s = addr_str.strip()
+    # Raw hex from CIP-30 wallet — all hex chars, no bech32 prefix
+    if all(c in "0123456789abcdefABCDEF" for c in s) and len(s) >= 56:
+        return bytes.fromhex(s)
+    # bech32
     CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
-    s = addr_str.lower()
-    sep = s.rfind("1")
+    sl = s.lower()
+    sep = sl.rfind("1")
     if sep < 1:
-        raise ValueError(f"Invalid bech32 address: {addr_str}")
-    data_part = s[sep + 1:]
+        raise ValueError(f"Invalid address format: {addr_str}")
+    data_part = sl[sep + 1:]
     values = [CHARSET.find(c) for c in data_part]
     if any(v == -1 for v in values):
         raise ValueError(f"Invalid bech32 character in address: {addr_str}")
-    # Drop last 6 chars (checksum), convert 5-bit groups → 8-bit bytes
     acc, bits, result = 0, 0, []
     for v in values[:-6]:
         acc = ((acc << 5) | v) & 0xFFFFFFFF
@@ -383,7 +390,7 @@ async def execute_settlement(req: SettleRequest):
         skey, _, _, wallet_address = KeyManager.load_from_config(config.wallet)
 
         if req.recipient_address:
-            addr_bytes = _bech32_to_bytes(req.recipient_address)
+            addr_bytes = _addr_to_bytes(req.recipient_address)
             recipient = Address.from_primitive(addr_bytes)
         else:
             recipient = wallet_address
