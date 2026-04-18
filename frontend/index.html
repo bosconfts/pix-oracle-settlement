@@ -2203,35 +2203,57 @@ Each settlement includes:
     }
 
     btn.disabled = true;
-    btn.textContent = '⏳ Conectando...';
+    btn.textContent = '⏳ Connecting...';
 
     try {
       const api = await window.cardano.eternl.enable();
 
-      // Address
+      // Address — CIP-30 returns hex-encoded CBOR; decode to bech32
       const rawAddrs = await api.getUsedAddresses();
       const addrHex = rawAddrs[0] || (await api.getUnusedAddresses())[0];
-      const addrShort = addrHex
-        ? addrHex.slice(0, 12) + '...' + addrHex.slice(-6)
-        : '—';
+
+      // Convert hex address to bech32 via Cardano's own serialization
+      let addrBech32 = addrHex || '';
+      try {
+        // CIP-30 addresses are raw CBOR bytes as hex; use Address.from_bytes if available,
+        // otherwise just display the hex shortened
+        if (window.CardanoWasm) {
+          addrBech32 = window.CardanoWasm.Address.from_bytes(
+            Uint8Array.from(addrHex.match(/.{2}/g).map(b => parseInt(b, 16)))
+          ).to_bech32();
+        }
+      } catch (_) {}
+
+      const addrShort = addrBech32
+        ? addrBech32.slice(0, 16) + '...' + addrBech32.slice(-6)
+        : (addrHex ? addrHex.slice(0, 12) + '...' + addrHex.slice(-6) : '—');
 
       // Balance (CBOR-encoded Value)
       const balHex = await api.getBalance();
       const lovelace = decodeCborLovelace(balHex);
-      const ada = (lovelace / 1_000_000).toLocaleString('pt-BR', {
+      const ada = (lovelace / 1_000_000).toLocaleString('en-US', {
         minimumFractionDigits: 2, maximumFractionDigits: 2
       });
 
       document.getElementById('wallet-addr').textContent = addrShort;
       document.getElementById('wallet-balance').textContent = `${ada} ₳`;
       document.getElementById('wallet-info').style.display = 'flex';
+
+      // Auto-fill the Cardano address field with the connected wallet address
+      if (addrBech32) {
+        document.getElementById('input-addr').value = addrBech32;
+      }
+
+      btn.disabled = false;
       btn.textContent = '✓ Eternl';
       btn.classList.add('connected');
       walletConnected = true;
 
+      showToast(`Wallet connected · ${ada} ₳`, 'success');
+
     } catch (e) {
       btn.disabled = false;
-      btn.textContent = '⬡ Conectar Eternl';
+      btn.textContent = '⬡ Connect Eternl';
       showToast(`Connection error: ${e.message || e}`, 'error');
     }
   }
