@@ -4,7 +4,7 @@
 
 ## Demo
 
-[![Zeka Pagamentos — Demo](https://img.youtube.com/vi/Jtzw8YRKgD8/0.jpg)](https://youtu.be/Jtzw8YRKgD8)
+[![Zeka Pagamentos — Demo](https://img.youtube.com/vi/Jtzw8YRKgD8/1.jpg)](https://youtu.be/Jtzw8YRKgD8)
 
 ---
 
