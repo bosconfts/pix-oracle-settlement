@@ -1736,6 +1736,7 @@ Each settlement includes:
   let currentQuote = null;
   let settleMode = 'pix_to_ada'; // 'pix_to_ada' | 'ada_to_pix'
   let walletConnected = false;
+  let walletAddress = null; // full bech32 address after connect
   const API = 'http://localhost:8000';
 
   // ─── Init ───
@@ -1969,10 +1970,14 @@ Each settlement includes:
     setStepActive(3);
 
     try {
-      const recipientAddr = document.getElementById('input-addr').value.trim() || null;
+      // In ada_to_pix mode, #input-addr is hidden — use walletAddress as fallback
+      const addrField = document.getElementById('input-addr').value.trim();
+      const recipientAddr = addrField || walletAddress || null;
       const pixKey = document.getElementById('input-pix').value.trim() || null;
-      // For ada_to_pix: the pix key is the destination, recipient address is wallet's own
-      // The backend always takes amount_brl, so currentQuote.amount_brl is already correct
+
+      if (settleMode === 'ada_to_pix' && !recipientAddr) {
+        throw new Error('Connect your Eternl wallet first — we need your Cardano address to send ADA.');
+      }
 
       const res = await fetch(`${API}/settle`, {
         method: 'POST',
@@ -1986,8 +1991,9 @@ Each settlement includes:
       });
 
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail || 'Erro no settlement');
+        let detail = `HTTP ${res.status}`;
+        try { detail = (await res.json()).detail || detail; } catch (_) {}
+        throw new Error(detail);
       }
 
       const data = await res.json();
@@ -2017,6 +2023,11 @@ Each settlement includes:
     } catch (e) {
       showToast(`❌ ${e.message}`, 'error');
       setStepActive(1);
+      // Also show error in oracle proof box so it's not missed
+      document.getElementById('oracle-proof').innerHTML =
+        `<span style="color:var(--red)">❌ Settlement failed</span>\n\n` +
+        `<span class="proof-key">error:</span> <span style="color:var(--red)">${e.message}</span>\n\n` +
+        `<span class="proof-val">Check that the backend is running\nand your wallet is connected.</span>`;
     }
 
     btn.disabled = false;
@@ -2239,8 +2250,9 @@ Each settlement includes:
       document.getElementById('wallet-balance').textContent = `${ada} ₳`;
       document.getElementById('wallet-info').style.display = 'flex';
 
-      // Auto-fill the Cardano address field with the connected wallet address
+      // Store and auto-fill the Cardano address
       if (addrBech32) {
+        walletAddress = addrBech32;
         document.getElementById('input-addr').value = addrBech32;
       }
 
