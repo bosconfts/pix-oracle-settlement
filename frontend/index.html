@@ -1599,6 +1599,7 @@ Each settlement includes:
   let currentSlippage = 0.01;
   let currentQuote = null;
   let settleMode = 'pix_to_ada'; // 'pix_to_ada' | 'ada_to_pix'
+  let walletConnected = false;
   const API = 'http://localhost:8000';
 
   // ─── Init ───
@@ -1658,6 +1659,10 @@ Each settlement includes:
     const btnAda = document.getElementById('mode-ada');
     btnPix.className = 'mode-btn' + (mode === 'pix_to_ada' ? ' active' : '');
     btnAda.className = 'mode-btn' + (mode === 'ada_to_pix' ? ' active-ada' : '');
+
+    if (mode === 'ada_to_pix' && !walletConnected) {
+      connectWallet();
+    }
   }
 
   function goToStep2() {
@@ -2000,6 +2005,7 @@ Each settlement includes:
       document.getElementById('wallet-balance').textContent = `${ada} ₳`;
       document.getElementById('wallet-info').style.display = 'flex';
       btn.textContent = '✓ Eternl';
+      walletConnected = true;
 
     } catch (e) {
       btn.disabled = false;
