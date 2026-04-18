@@ -707,6 +707,150 @@
     font-family: 'Space Mono', monospace;
   }
 
+  /* ─── Mode Selector ─── */
+  .mode-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .mode-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mode-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    transition: background 0.2s;
+  }
+
+  .mode-btn:hover {
+    border-color: rgba(50,188,173,0.4);
+    background: rgba(50,188,173,0.04);
+  }
+
+  .mode-btn.active {
+    border-color: var(--pix);
+    background: rgba(50,188,173,0.08);
+    box-shadow: 0 0 14px rgba(50,188,173,0.12);
+  }
+
+  .mode-btn.active-ada {
+    border-color: var(--accent);
+    background: rgba(99,102,241,0.08);
+    box-shadow: 0 0 14px rgba(99,102,241,0.12);
+  }
+
+  .mode-btn-icon {
+    font-size: 26px;
+    line-height: 1;
+  }
+
+  .mode-btn-title {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    color: var(--text);
+  }
+
+  .mode-btn-sub {
+    font-size: 10px;
+    color: var(--text2);
+    font-family: 'Space Mono', monospace;
+    line-height: 1.4;
+  }
+
+  .mode-check {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--pix);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #000;
+    font-weight: 900;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .mode-btn.active .mode-check,
+  .mode-btn.active-ada .mode-check {
+    opacity: 1;
+  }
+
+  .mode-btn.active-ada .mode-check {
+    background: var(--accent2);
+  }
+
+  /* Direction display between modes */
+  .mode-direction {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--bg2);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .mode-direction .from { color: var(--pix); font-weight: 700; }
+  .mode-direction .arrow { color: var(--text2); }
+  .mode-direction .to { color: var(--accent2); font-weight: 700; }
+
+  /* Step indicator dots */
+  .form-steps {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .form-step-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s;
+  }
+
+  .form-step-dot.active {
+    background: var(--pix);
+    box-shadow: 0 0 6px rgba(50,188,173,0.6);
+    width: 18px;
+    border-radius: 3px;
+  }
+
+  .form-step-label {
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    color: var(--text2);
+    margin-left: 4px;
+  }
+
   /* CTA Button */
   .btn-primary {
     width: 100%;
@@ -1203,95 +1347,147 @@
     <div class="card card-pix">
       <div class="card-label"><span class="dot dot-green"></span> New Settlement</div>
 
-      <!-- Flow -->
-      <div class="flow">
+      <!-- Step 1: Mode selector -->
+      <div id="form-step1">
+        <div class="form-steps">
+          <div class="form-step-dot active"></div>
+          <div class="form-step-dot"></div>
+          <div class="form-step-dot"></div>
+          <span class="form-step-label">What are you sending?</span>
+        </div>
+
+        <div class="mode-selector">
+          <button class="mode-btn active" id="mode-pix" onclick="selectMode('pix_to_ada')">
+            <div class="mode-check">✓</div>
+            <div class="mode-btn-icon">R$</div>
+            <div class="mode-btn-title">Send PIX</div>
+            <div class="mode-btn-sub">Pay BRL<br>receive ADA</div>
+          </button>
+          <button class="mode-btn" id="mode-ada" onclick="selectMode('ada_to_pix')">
+            <div class="mode-check">✓</div>
+            <div class="mode-btn-icon">◈</div>
+            <div class="mode-btn-title">Send ADA</div>
+            <div class="mode-btn-sub">Pay ADA<br>receive BRL</div>
+          </button>
+        </div>
+
+        <button class="btn-primary" onclick="goToStep2()" id="btn-step1-next">
+          Continue →
+        </button>
+      </div>
+
+      <!-- Step 2: Amount + address -->
+      <div id="form-step2" style="display:none">
+        <div class="form-steps">
+          <div class="form-step-dot"></div>
+          <div class="form-step-dot active"></div>
+          <div class="form-step-dot"></div>
+          <span class="form-step-label" id="step2-label">Amount &amp; recipient</span>
+        </div>
+
+        <div class="mode-direction" id="mode-direction">
+          <span class="from" id="dir-from">BRL</span>
+          <span class="arrow">→</span>
+          <span>⬡ Oracle</span>
+          <span class="arrow">→</span>
+          <span class="to" id="dir-to">ADA</span>
+        </div>
+
+        <!-- Amount -->
+        <div class="form-group">
+          <label class="form-label" id="amount-label">Amount in BRL</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="amount-prefix">R$</span>
+            <input type="number" id="input-amount" placeholder="0.00" value="100" step="0.01" min="0">
+          </div>
+        </div>
+
+        <!-- PIX key (shown for ada_to_pix mode) -->
+        <div class="form-group" id="group-pix">
+          <label class="form-label">Recipient PIX Key</label>
+          <div class="input-wrapper">
+            <input type="text" id="input-pix" placeholder="CPF, email, phone or random key"
+              value="bosconfts@gmail.com">
+          </div>
+        </div>
+
+        <!-- Cardano address (shown for pix_to_ada mode) -->
+        <div class="form-group" id="group-addr">
+          <label class="form-label">Recipient Cardano Address</label>
+          <div class="input-wrapper">
+            <input type="text" id="input-addr"
+              placeholder="addr_test1..."
+              value="addr_test1qpkxr3kpzex93m646qr7w82d56md2kchtsv9jy39dykn4cmcxuunx95u4a6p96e58flkl0sk08f2pa9nmxxnl3zfnxs9djf7he">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Slippage Tolerance <span class="tooltip-wrap">ⓘ<span class="tooltip-box">Max price movement you accept between quote and settlement. 1% means if ADA/USD moves more than 1%, the transaction adjusts. Lower = more precise, higher = more likely to succeed.</span></span></label>
+          <div class="slippage-buttons">
+            <button class="slippage-btn" onclick="setSlippage(0.005)">0.5%</button>
+            <button class="slippage-btn active" onclick="setSlippage(0.01)">1%</button>
+            <button class="slippage-btn" onclick="setSlippage(0.02)">2%</button>
+            <button class="slippage-btn" onclick="setSlippage(0.05)">5%</button>
+          </div>
+        </div>
+
+        <!-- Quote box -->
+        <div class="quote-box" id="quote-box" style="display:none">
+          <div class="quote-row">
+            <span class="quote-row-label">ADA/USD Price <span class="oracle-badge">⬡ Charli3</span></span>
+            <span class="quote-row-value" id="q-ada-usd">—</span>
+          </div>
+          <div class="quote-row">
+            <span class="quote-row-label">USD/BRL Rate (Central Bank)</span>
+            <span class="quote-row-value" id="q-usd-brl">—</span>
+          </div>
+          <div class="quote-row">
+            <span class="quote-row-label">ADA/BRL calculated</span>
+            <span class="quote-row-value" id="q-ada-brl">—</span>
+          </div>
+          <div class="quote-row" id="q-row-required">
+            <span class="quote-row-label" id="q-required-label">ADA you receive</span>
+            <span class="quote-row-value highlight" id="q-ada-required">—</span>
+          </div>
+          <div class="quote-row">
+            <span class="quote-row-label">With slippage (<span id="q-slippage-pct">—</span>)</span>
+            <span class="quote-row-value" id="q-ada-slippage">—</span>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+          <button class="btn-secondary" style="width:auto;padding:12px 16px;margin-top:0;flex-shrink:0" onclick="goToStep1()">← Back</button>
+          <button class="btn-primary" id="btn-quote" onclick="getQuote()" style="flex:1">
+            ⬡ Get Oracle Quote
+          </button>
+        </div>
+        <button class="btn-secondary" id="btn-settle" onclick="executeSettlement()" style="display:none">
+          🔐 Execute Settlement On-Chain
+        </button>
+      </div>
+
+      <!-- Tx flow indicator (shown during quote/settle) -->
+      <div class="flow" id="tx-flow" style="display:none;margin-top:16px">
         <div class="flow-step">
           <div class="flow-icon active" id="step1-icon">💸</div>
-          <span class="flow-label">Amount<br>in BRL</span>
+          <span class="flow-label">Amount</span>
         </div>
         <div class="flow-arrow"></div>
         <div class="flow-step">
           <div class="flow-icon" id="step2-icon">⬡</div>
-          <span class="flow-label">Pull<br>Oracle</span>
+          <span class="flow-label">Oracle</span>
         </div>
         <div class="flow-arrow"></div>
         <div class="flow-step">
           <div class="flow-icon" id="step3-icon">🔐</div>
-          <span class="flow-label">Contract<br>Validated</span>
+          <span class="flow-label">Validate</span>
         </div>
         <div class="flow-arrow"></div>
         <div class="flow-step">
           <div class="flow-icon" id="step4-icon">✅</div>
-          <span class="flow-label">ADA<br>Released</span>
+          <span class="flow-label">Done</span>
         </div>
       </div>
-
-      <!-- Form -->
-      <div class="form-group">
-        <label class="form-label">Amount in BRL</label>
-        <div class="input-wrapper">
-          <span class="input-prefix">R$</span>
-          <input type="number" id="input-brl" placeholder="0.00" value="100" step="0.01" min="0">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Recipient PIX Key</label>
-        <div class="input-wrapper">
-          <input type="text" id="input-pix" placeholder="CPF, email, phone or random key"
-            value="bosconfts@gmail.com">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Recipient Cardano Address</label>
-        <div class="input-wrapper">
-          <input type="text" class="input-address" id="input-addr"
-            placeholder="addr_test1..."
-            value="addr_test1qpkxr3kpzex93m646qr7w82d56md2kchtsv9jy39dykn4cmcxuunx95u4a6p96e58flkl0sk08f2pa9nmxxnl3zfnxs9djf7he">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Slippage Tolerance <span class="tooltip-wrap">ⓘ<span class="tooltip-box">Max price movement you accept between quote and settlement. 1% means if ADA/USD moves more than 1%, the transaction adjusts. Lower = more precise, higher = more likely to succeed.</span></span></label>
-        <div class="slippage-buttons">
-          <button class="slippage-btn" onclick="setSlippage(0.005)">0.5%</button>
-          <button class="slippage-btn active" onclick="setSlippage(0.01)">1%</button>
-          <button class="slippage-btn" onclick="setSlippage(0.02)">2%</button>
-          <button class="slippage-btn" onclick="setSlippage(0.05)">5%</button>
-        </div>
-      </div>
-
-      <!-- Quote box -->
-      <div class="quote-box" id="quote-box" style="display:none">
-        <div class="quote-row">
-          <span class="quote-row-label">ADA/USD Price <span class="oracle-badge">⬡ Charli3</span></span>
-          <span class="quote-row-value" id="q-ada-usd">—</span>
-        </div>
-        <div class="quote-row">
-          <span class="quote-row-label">USD/BRL Rate (Central Bank)</span>
-          <span class="quote-row-value" id="q-usd-brl">—</span>
-        </div>
-        <div class="quote-row">
-          <span class="quote-row-label">ADA/BRL calculated</span>
-          <span class="quote-row-value" id="q-ada-brl">—</span>
-        </div>
-        <div class="quote-row">
-          <span class="quote-row-label">ADA required</span>
-          <span class="quote-row-value highlight" id="q-ada-required">—</span>
-        </div>
-        <div class="quote-row">
-          <span class="quote-row-label">With slippage (<span id="q-slippage-pct">—</span>)</span>
-          <span class="quote-row-value" id="q-ada-slippage">—</span>
-        </div>
-      </div>
-
-      <button class="btn-primary" id="btn-quote" onclick="getQuote()">
-        ⬡ Get Oracle Quote
-      </button>
-      <button class="btn-secondary" id="btn-settle" onclick="executeSettlement()" style="display:none">
-        🔐 Execute Settlement On-Chain
-      </button>
     </div>
 
     <!-- Oracle Proof + Recent Settlements -->
@@ -1363,6 +1559,7 @@ Each settlement includes:
   // ─── State ───
   let currentSlippage = 0.01;
   let currentQuote = null;
+  let settleMode = 'pix_to_ada'; // 'pix_to_ada' | 'ada_to_pix'
   const API = 'http://localhost:8000';
 
   // ─── Init ───
@@ -1373,8 +1570,8 @@ Each settlement includes:
     // Auto-refresh oracle prices every 30s
     setInterval(loadOracleStatus, 30000);
     
-    // Input listener for live quote update
-    document.getElementById('input-brl').addEventListener('input', debounce(() => {
+    // Input listener for live quote refresh
+    document.getElementById('input-amount').addEventListener('input', debounce(() => {
       if (currentQuote) getQuote();
     }, 500));
   });
@@ -1415,47 +1612,111 @@ Each settlement includes:
     } catch { return null; }
   }
 
+  // ─── Mode & Steps ───
+  function selectMode(mode) {
+    settleMode = mode;
+    const btnPix = document.getElementById('mode-pix');
+    const btnAda = document.getElementById('mode-ada');
+    btnPix.className = 'mode-btn' + (mode === 'pix_to_ada' ? ' active' : '');
+    btnAda.className = 'mode-btn' + (mode === 'ada_to_pix' ? ' active-ada' : '');
+  }
+
+  function goToStep2() {
+    document.getElementById('form-step1').style.display = 'none';
+    document.getElementById('form-step2').style.display = 'block';
+    document.getElementById('quote-box').style.display = 'none';
+    document.getElementById('btn-settle').style.display = 'none';
+    document.getElementById('tx-flow').style.display = 'none';
+
+    if (settleMode === 'pix_to_ada') {
+      document.getElementById('amount-label').textContent = 'Amount in BRL (R$)';
+      document.getElementById('amount-prefix').textContent = 'R$';
+      document.getElementById('group-pix').style.display = 'none';
+      document.getElementById('group-addr').style.display = 'block';
+      document.getElementById('dir-from').textContent = 'BRL';
+      document.getElementById('dir-to').textContent = 'ADA';
+      document.getElementById('q-required-label').textContent = 'ADA you receive';
+    } else {
+      document.getElementById('amount-label').textContent = 'Amount in ADA';
+      document.getElementById('amount-prefix').textContent = '◈';
+      document.getElementById('group-pix').style.display = 'block';
+      document.getElementById('group-addr').style.display = 'none';
+      document.getElementById('dir-from').textContent = 'ADA';
+      document.getElementById('dir-to').textContent = 'BRL';
+      document.getElementById('q-required-label').textContent = 'BRL you receive';
+      document.getElementById('input-amount').value = '50';
+    }
+  }
+
+  function goToStep1() {
+    document.getElementById('form-step2').style.display = 'none';
+    document.getElementById('form-step1').style.display = 'block';
+    currentQuote = null;
+  }
+
   // ─── Get Quote ───
   async function getQuote() {
-    const amountBrl = parseFloat(document.getElementById('input-brl').value);
-    if (!amountBrl || amountBrl <= 0) {
-      showToast('Please enter a valid BRL amount', 'error');
+    const rawAmount = parseFloat(document.getElementById('input-amount').value);
+    if (!rawAmount || rawAmount <= 0) {
+      showToast('Please enter a valid amount', 'error');
       return;
     }
 
     const btn = document.getElementById('btn-quote');
     btn.disabled = true;
     btn.textContent = '⬡ Fetching oracle price...';
+    document.getElementById('tx-flow').style.display = 'flex';
 
     // Animate steps
     setStepActive(1);
 
+    // For ada_to_pix: the user enters ADA amount.
+    // We need a BRL amount for the backend — estimate using last known ticker price,
+    // then re-fetch the real rate inside the quote call.
+    let amountBrl;
+    if (settleMode === 'pix_to_ada') {
+      amountBrl = rawAmount;
+    } else {
+      // Rough conversion using displayed ticker (or 0.2519 * 5.72 fallback)
+      const tickerBrl = parseFloat(document.getElementById('tick-ada-brl').textContent.replace('R$','')) || (0.2519 * 5.72);
+      amountBrl = rawAmount * tickerBrl;
+    }
+
     try {
-      // Simula pull oracle (com fallback se API offline)
       await sleep(800);
       setStepActive(2);
-      
+
       const data = await fetchQuoteData(amountBrl) || getMockQuote(amountBrl);
-      
+
       await sleep(600);
       setStepActive(3);
-      
+
+      // Attach entered amount for display/settlement
+      data._input_raw = rawAmount;
+      data._mode = settleMode;
       currentQuote = data;
-      
+
       // Update quote box
       document.getElementById('q-ada-usd').textContent = `$${data.ada_usd_price.toFixed(6)}`;
       document.getElementById('q-usd-brl').textContent = `R$${data.usd_brl_price.toFixed(4)}`;
       document.getElementById('q-ada-brl').textContent = `R$${data.ada_brl_price.toFixed(4)}`;
-      document.getElementById('q-ada-required').textContent = `${data.ada_required.toFixed(4)} ADA`;
-      document.getElementById('q-ada-slippage').textContent = `${data.ada_with_slippage.toFixed(4)} ADA`;
+
+      if (settleMode === 'pix_to_ada') {
+        document.getElementById('q-ada-required').textContent = `${data.ada_required.toFixed(4)} ADA`;
+        document.getElementById('q-ada-slippage').textContent = `${data.ada_with_slippage.toFixed(4)} ADA`;
+      } else {
+        // ada_to_pix: show BRL they receive
+        const brlReceive = rawAmount * data.ada_usd_price * data.usd_brl_price;
+        document.getElementById('q-ada-required').textContent = `R$ ${brlReceive.toFixed(2)}`;
+        document.getElementById('q-ada-slippage').textContent = `R$ ${(brlReceive * (1 - currentSlippage)).toFixed(2)}`;
+      }
       document.getElementById('q-slippage-pct').textContent = `${(currentSlippage * 100).toFixed(1)}%`;
-      
+
       document.getElementById('quote-box').style.display = 'block';
       document.getElementById('btn-settle').style.display = 'block';
-      
-      // Update oracle proof
+
       updateOracleProof(data);
-      
+
       showToast('Quote fetched from Charli3 Oracle ⬡', 'success');
 
     } catch (e) {
@@ -1516,13 +1777,15 @@ Each settlement includes:
 
     const btn = document.getElementById('btn-settle');
     btn.disabled = true;
-    btn.textContent = '⏳ Submetendo TX...';
+    btn.textContent = '⏳ Submitting TX...';
 
     setStepActive(3);
 
     try {
       const recipientAddr = document.getElementById('input-addr').value.trim() || null;
       const pixKey = document.getElementById('input-pix').value.trim() || null;
+      // For ada_to_pix: the pix key is the destination, recipient address is wallet's own
+      // The backend always takes amount_brl, so currentQuote.amount_brl is already correct
 
       const res = await fetch(`${API}/settle`, {
         method: 'POST',
@@ -1570,7 +1833,7 @@ Each settlement includes:
     }
 
     btn.disabled = false;
-    btn.textContent = '🔐 Executar Settlement On-Chain';
+    btn.textContent = '🔐 Execute Settlement On-Chain';
   }
 
   // ─── Load Settlements ───
