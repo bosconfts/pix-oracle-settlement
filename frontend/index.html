@@ -983,13 +983,94 @@
     box-shadow: 0 0 12px rgba(52,211,153,0.35), 0 0 24px rgba(52,211,153,0.1);
   }
 
-  /* Responsive */
+  /* ─── Mobile ─── */
   @media (max-width: 768px) {
-    header { padding: 16px 20px; }
-    main { padding: 32px 20px; }
+    /* Layout */
+    header { padding: 14px 16px; }
+    main { padding: 24px 16px; }
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 36px; }
+
+    /* Hero */
+    .hero { margin-bottom: 40px; }
+    .hero h1 { font-size: 34px; letter-spacing: -1px; }
+    .hero p { font-size: 15px; }
+    .hero-tag {
+      font-size: 10px;
+      padding: 5px 10px;
+      letter-spacing: 0.5px;
+      text-align: center;
+    }
+
+    /* Atomic flow — stack vertically on very small, stay row but smaller icons */
+    .atomic-flow { gap: 8px; }
+    .atomic-icon { width: 42px; height: 42px; font-size: 17px; }
+    .atomic-arrow { font-size: 14px; }
+
+    /* Oracle ticker — wrap into 2-up grid */
+    .oracle-ticker {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 0;
+      padding: 14px 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .ticker-divider { display: none; }
+    .ticker-item { align-items: flex-start; }
+    .ticker-value { font-size: 15px; }
+
+    /* Wallet widget */
+    .wallet-widget { flex-direction: column; align-items: stretch; gap: 8px; }
+    .btn-wallet { text-align: center; }
+    .wallet-info { justify-content: center; font-size: 10px; }
+    .wallet-addr { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* PIX banner */
+    .pix-banner { padding: 18px 16px; }
+    .pix-banner-stats { gap: 6px; }
+    .pix-stat-value { font-size: 18px; }
+    .pix-stat-divider { display: none; }
+    .pix-stat { min-width: 70px; }
+
+    /* Form card */
+    .card { padding: 20px 16px; }
+
+    /* Flow diagram inside form */
+    .flow { gap: 0; }
+    .flow-step { min-width: 60px; }
+    .flow-icon { width: 36px; height: 36px; font-size: 16px; }
+    .flow-label { font-size: 9px; }
+    .flow-arrow { min-width: 10px; }
+
+    /* Inputs — 16px prevents iOS auto-zoom */
+    input[type="number"] { font-size: 20px; }
+    #input-pix, #input-addr { font-size: 16px; }
+
+    /* Slippage buttons */
+    .slippage-btn { font-size: 11px; padding: 7px 4px; }
+
+    /* Architecture grid — 2×2 */
+    .arch-grid { grid-template-columns: 1fr 1fr !important; }
+
+    /* Header badges — hide */
     .header-badges { display: none; }
+
+    /* Section title */
+    .section-title { font-size: 18px; }
+
+    /* Stat cards */
+    .stat-value { font-size: 22px; }
+
+    /* Hero orb smaller on mobile */
+    .hero-orb { width: 320px; height: 200px; }
+  }
+
+  /* Very small screens */
+  @media (max-width: 400px) {
+    .hero h1 { font-size: 28px; }
+    .atomic-flow { flex-direction: column; align-items: center; }
+    .atomic-arrow { transform: rotate(90deg); }
+    .oracle-ticker { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -1249,7 +1330,7 @@ Each settlement includes:
   <!-- Architecture -->
   <div class="card" style="margin-top:0">
     <div class="section-title"><span class="icon">🏗</span> Architecture</div>
-    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px;">
+    <div class="arch-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px;">
       <div style="text-align:center; padding:16px; background:var(--bg2); border-radius:10px; border:1px solid var(--border)">
         <div style="font-size:28px;margin-bottom:8px">📱</div>
         <div style="font-weight:700;margin-bottom:4px;font-size:14px">Frontend</div>
