@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PIX Oracle Settlement — Charli3 × Cardano</title>
+<title>Zeka Pagamentos — Charli3 × Cardano</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
@@ -1374,9 +1374,14 @@
   /* Very small screens */
   @media (max-width: 400px) {
     .hero h1 { font-size: 28px; }
-    .atomic-flow { flex-direction: column; align-items: center; }
-    .atomic-arrow { transform: rotate(90deg); }
-    .oracle-ticker { grid-template-columns: 1fr; }
+    .atomic-flow { flex-direction: row; align-items: center; flex-wrap: nowrap; gap: 4px; }
+    .atomic-arrow { transform: none; font-size: 11px; }
+    .atomic-icon { width: 36px; height: 36px; font-size: 14px; }
+    .atomic-label { font-size: 9px; }
+    .atomic-label strong { font-size: 9px; }
+    .oracle-ticker { grid-template-columns: 1fr 1fr 1fr; }
+    .ticker-value { font-size: 13px; }
+    .ticker-label { font-size: 9px; }
   }
 </style>
 </head>
@@ -1384,8 +1389,8 @@
 
 <header>
   <div class="logo">
-    <div class="logo-icon">⚡</div>
-    <div class="logo-text">PIX<span>Oracle</span> Settlement</div>
+    <div class="logo-icon"><img src="/zeka-icon.svg" style="width:24px;height:24px;display:block;" alt="Zeka"></div>
+    <div class="logo-text">Zeka<span>Pagamentos</span></div>
   </div>
   <div class="header-badges">
     <span class="badge badge-charli3">⬡ Charli3 Oracle</span>
@@ -1480,7 +1485,7 @@
     </div>
     <div class="pix-banner-desc">
       PIX is Brazil's national instant payment network — bigger than Venmo, CashApp, and Zelle combined.
-      Every payment settles in under 3 seconds. <strong>PIX Oracle Settlement</strong> bridges this
+      Every payment settles in under 3 seconds. <strong>Zeka Pagamentos</strong> bridges this
       infrastructure to Cardano: lock ADA in a smart contract, confirm a PIX payment, and the
       Charli3 Pull Oracle guarantees the exchange rate at the exact moment of settlement.
     </div>
@@ -1737,7 +1742,7 @@ Each settlement includes:
   let settleMode = 'pix_to_ada'; // 'pix_to_ada' | 'ada_to_pix'
   let walletConnected = false;
   let walletAddress = null; // full bech32 address after connect
-  const API = 'http://localhost:8000';
+  const API = window.location.origin;
 
   // ─── Init ───
   window.addEventListener('DOMContentLoaded', () => {

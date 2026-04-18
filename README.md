@@ -1,4 +1,4 @@
-# PIX Oracle Settlement
+# Zeka Pagamentos
 
 **Charli3 Oracles Hackathon 2026 — Track: Real World Settlements**
 
@@ -10,7 +10,7 @@ PIX is Brazil's national instant payment network — the largest in the world by
 In 2025, PIX processed over **$5 trillion USD** across **50+ billion transactions**, used by **160 million Brazilians** every day.
 Every payment settles in under 3 seconds, 24/7.
 
-**PIX Oracle Settlement** is a trustless atomic swap on Cardano that bridges PIX payments to ADA.
+**Zeka Pagamentos** is a trustless atomic swap on Cardano that bridges PIX payments to ADA.
 
 A payer locks ADA in a smart contract. The **Charli3 Pull Oracle** is called at the exact moment of settlement to fetch the verified ADA/USD price on-demand. The contract validates the oracle price, verifies the Charli3 NFT, and releases ADA to the recipient — no intermediaries, no hidden slippage, rate provably on-chain.
 
@@ -44,7 +44,7 @@ The Pull Oracle guarantees the **freshest possible price at the exact moment it 
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                      PIX Oracle Settlement                        │
+│                        Zeka Pagamentos                            │
 ├──────────────────┬─────────────────────┬────────────────────────┤
 │   Frontend       │   Backend           │   Settlement Contract   │
 │   (HTML/JS)      │   (FastAPI +        │   (Aiken / Plutus V3)  │

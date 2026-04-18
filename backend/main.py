@@ -44,7 +44,7 @@ app.add_middleware(
 CHARLI3_CONFIG_PATH = Path(__file__).parent / "config.yaml"
 FEEDS_JSON_PATH = Path(__file__).parent / "feeds.json"
 SETTLEMENTS_JSON_PATH = Path(__file__).parent / "settlements.json"
-FRONTEND_PATH = Path(__file__).parent.parent.parent / "frontend" / "index.html"
+FRONTEND_PATH = Path(__file__).resolve().parent.parent / "frontend" / "index.html"
 
 BCB_API_URL = "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)"
 
@@ -251,6 +251,11 @@ async def root():
 async def frontend():
     """Serve the frontend — use http://localhost:8000/app for wallet connect."""
     return FileResponse(FRONTEND_PATH)
+
+
+@app.get("/zeka-icon.svg")
+async def zeka_icon():
+    return FileResponse(FRONTEND_PATH.parent / "zeka-icon.svg", media_type="image/svg+xml")
 
 
 @app.get("/oracle/status", response_model=OracleStatus)
