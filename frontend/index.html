@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PIX Oracle Settlement — Charli3 × Cardano</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root {
     --bg: #0a0a0f;
@@ -1166,6 +1167,116 @@
     box-shadow: 0 0 12px rgba(52,211,153,0.35), 0 0 24px rgba(52,211,153,0.1);
   }
 
+  /* ─── PIX QR Payment Box ─── */
+  .pix-qr-box {
+    background: var(--bg2);
+    border: 1px solid rgba(50,188,173,0.35);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pix-qr-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--pix), transparent);
+  }
+
+  .pix-qr-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--pix);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 16px;
+  }
+
+  .pix-qr-amount {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--pix);
+    font-family: 'Syne', sans-serif;
+    text-shadow: 0 0 16px rgba(50,188,173,0.5);
+    margin-bottom: 4px;
+  }
+
+  .pix-qr-amount-sub {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 16px;
+  }
+
+  .pix-qr-canvas {
+    display: inline-flex;
+    padding: 12px;
+    background: #fff;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    box-shadow: 0 0 20px rgba(50,188,173,0.2);
+  }
+
+  .pix-qr-canvas canvas, .pix-qr-canvas img {
+    display: block;
+    border-radius: 4px;
+  }
+
+  .pix-key-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: left;
+  }
+
+  .pix-key-text {
+    flex: 1;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .pix-key-copy {
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid rgba(50,188,173,0.4);
+    border-radius: 6px;
+    color: var(--pix);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pix-key-copy:hover {
+    background: rgba(50,188,173,0.1);
+    box-shadow: 0 0 8px rgba(50,188,173,0.3);
+  }
+
+  .pix-qr-hint {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: 'Space Mono', monospace;
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
   /* ─── Mobile ─── */
   @media (max-width: 768px) {
     /* Layout */
@@ -1494,6 +1605,19 @@
           </div>
         </div>
 
+        <!-- PIX QR Payment box (pix_to_ada mode only) -->
+        <div class="pix-qr-box" id="pix-qr-box" style="display:none">
+          <div class="pix-qr-title">🇧🇷 Pay via PIX</div>
+          <div class="pix-qr-amount" id="pix-qr-amount">R$ —</div>
+          <div class="pix-qr-amount-sub">Exact amount · expires in 5 min</div>
+          <div class="pix-qr-canvas" id="pix-qr-canvas"></div>
+          <div class="pix-key-row">
+            <span class="pix-key-text" id="pix-key-display">—</span>
+            <button class="pix-key-copy" onclick="copyPixKey()">Copy</button>
+          </div>
+          <div class="pix-qr-hint">Scan the QR code or copy the PIX key in your banking app.<br>After paying, click Execute Settlement below.</div>
+        </div>
+
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
           <button class="btn-secondary" style="width:auto;padding:12px 16px;margin-top:0;flex-shrink:0" onclick="goToStep1()">← Back</button>
           <button class="btn-primary" id="btn-quote" onclick="getQuote()" style="flex:1">
@@ -1695,6 +1819,7 @@ Each settlement includes:
   function goToStep1() {
     document.getElementById('form-step2').style.display = 'none';
     document.getElementById('form-step1').style.display = 'block';
+    document.getElementById('pix-qr-box').style.display = 'none';
     currentQuote = null;
   }
 
@@ -1760,6 +1885,12 @@ Each settlement includes:
       document.getElementById('btn-settle').style.display = 'block';
 
       updateOracleProof(data);
+
+      if (settleMode === 'pix_to_ada') {
+        showPixQr(rawAmount);
+      } else {
+        document.getElementById('pix-qr-box').style.display = 'none';
+      }
 
       showToast('Quote fetched from Charli3 Oracle ⬡', 'success');
 
@@ -1930,6 +2061,84 @@ Each settlement includes:
         <span class="settlement-status">confirmed</span>
       </div>`;
     el.insertAdjacentHTML('afterbegin', html);
+  }
+
+  // ─── PIX QR Code ───
+  // Demo PIX key — in production this would be the oracle operator's key
+  const DEMO_PIX_KEY = 'pagamentos@zeka.fi';
+
+  function buildPixPayload(pixKey, amountBrl) {
+    // Simplified EMV QR Code payload (PIX "copia e cola")
+    function field(id, value) {
+      const len = String(value.length).padStart(2, '0');
+      return `${id}${len}${value}`;
+    }
+    function crc16(str) {
+      let crc = 0xFFFF;
+      for (let i = 0; i < str.length; i++) {
+        crc ^= str.charCodeAt(i) << 8;
+        for (let j = 0; j < 8; j++) crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      }
+      return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+    }
+
+    const pixInfo = field('00', 'BR.GOV.BCB.PIX') + field('01', pixKey);
+    const merchantInfo = field('26', pixInfo);
+    const amount = amountBrl.toFixed(2);
+    const txid = 'ZEKA' + Date.now().toString().slice(-8);
+    const addData = field('62', field('05', txid));
+
+    let payload = '000201' + '010212' + merchantInfo + '52040000' + '5303986' +
+      '54' + String(amount.length).padStart(2, '0') + amount +
+      '5802BR' +
+      field('59', 'Zeka Pagamentos') +
+      field('60', 'Sao Paulo') +
+      addData +
+      '6304';
+
+    return payload + crc16(payload);
+  }
+
+  let _qrInstance = null;
+
+  function showPixQr(amountBrl) {
+    const box = document.getElementById('pix-qr-box');
+    const canvas = document.getElementById('pix-qr-canvas');
+    const pixKey = DEMO_PIX_KEY;
+
+    document.getElementById('pix-qr-amount').textContent = `R$ ${amountBrl.toFixed(2)}`;
+    document.getElementById('pix-key-display').textContent = pixKey;
+
+    // Clear previous QR
+    canvas.innerHTML = '';
+    _qrInstance = null;
+
+    const payload = buildPixPayload(pixKey, amountBrl);
+
+    try {
+      _qrInstance = new QRCode(canvas, {
+        text: payload,
+        width: 180,
+        height: 180,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M,
+      });
+    } catch (e) {
+      // Fallback: show payload as text if QRCode lib fails
+      canvas.innerHTML = `<div style="font-family:monospace;font-size:9px;word-break:break-all;max-width:180px;color:#000;background:#fff;padding:8px;border-radius:4px">${payload}</div>`;
+    }
+
+    box.style.display = 'block';
+  }
+
+  function copyPixKey() {
+    const key = document.getElementById('pix-key-display').textContent;
+    navigator.clipboard.writeText(key).then(() => {
+      showToast('PIX key copied!', 'success');
+    }).catch(() => {
+      showToast('Copy failed — select the key manually', 'error');
+    });
   }
 
   // ─── Helpers ───
