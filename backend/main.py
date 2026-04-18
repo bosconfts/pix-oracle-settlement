@@ -438,6 +438,8 @@ async def execute_settlement(req: SettleRequest):
                 })
             raise
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Settlement falhou: {e}")
 
