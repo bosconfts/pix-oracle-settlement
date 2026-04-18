@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="z-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#32bcad"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100" height="100" rx="20" fill="#0a0a0f"/>
+
+  <!-- Grid lines subtle -->
+  <line x1="25" y1="0"  x2="25" y2="100" stroke="#ffffff" stroke-width="0.3" opacity="0.05"/>
+  <line x1="50" y1="0"  x2="50" y2="100" stroke="#ffffff" stroke-width="0.3" opacity="0.05"/>
+  <line x1="75" y1="0"  x2="75" y2="100" stroke="#ffffff" stroke-width="0.3" opacity="0.05"/>
+  <line x1="0"  y1="25" x2="100" y2="25" stroke="#ffffff" stroke-width="0.3" opacity="0.05"/>
+  <line x1="0"  y1="50" x2="100" y2="50" stroke="#ffffff" stroke-width="0.3" opacity="0.05"/>
+  <line x1="0"  y1="75" x2="100" y2="75" stroke="#ffffff" stroke-width="0.3" opacity="0.05"/>
+
+  <!-- Z glow layer -->
+  <path d="M22 24 L78 24 L28 72 L78 72"
+    stroke="url(#z-grad)" stroke-width="14"
+    stroke-linecap="square" stroke-linejoin="miter"
+    fill="none" opacity="0.25" filter="url(#glow)"/>
+
+  <!-- Z main stroke -->
+  <path d="M22 24 L78 24 L28 72 L78 72"
+    stroke="url(#z-grad)" stroke-width="8"
+    stroke-linecap="square" stroke-linejoin="miter"
+    fill="none"/>
+
+  <!-- Corner dots -->
+  <circle cx="22" cy="24" r="3" fill="#32bcad" filter="url(#glow)"/>
+  <circle cx="78" cy="24" r="3" fill="#32bcad" filter="url(#glow)"/>
+  <circle cx="28" cy="72" r="3" fill="#6366f1" filter="url(#glow)"/>
+  <circle cx="78" cy="72" r="3" fill="#6366f1" filter="url(#glow)"/>
+
+  <!-- Circuit trace top-right corner -->
+  <path d="M78 24 L88 24 L88 16"
+    stroke="#32bcad" stroke-width="1.2" fill="none" opacity="0.5"/>
+  <circle cx="88" cy="15" r="1.5" fill="#32bcad" opacity="0.6"/>
+
+  <!-- Circuit trace bottom-left corner -->
+  <path d="M28 72 L14 72 L14 82"
+    stroke="#6366f1" stroke-width="1.2" fill="none" opacity="0.5"/>
+  <circle cx="14" cy="83" r="1.5" fill="#6366f1" opacity="0.6"/>
+</svg>
