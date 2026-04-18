@@ -903,29 +903,33 @@
     background: rgba(99,102,241,0.05);
   }
 
-  /* Execute Settlement — gray */
+  /* Execute Settlement — solid tech gray glow */
   .btn-settle {
     width: 100%;
     padding: 16px;
-    background: rgba(144,144,176,0.07);
-    border: 1px solid rgba(144,144,176,0.35);
+    background: linear-gradient(135deg, rgba(144,144,176,0.15), rgba(100,100,140,0.1));
+    border: 1px solid rgba(144,144,176,0.55);
     border-radius: 12px;
-    color: var(--text2);
+    color: #c8c8e0;
     font-family: 'Syne', sans-serif;
     font-size: 16px;
     font-weight: 800;
     cursor: pointer;
     letter-spacing: 0.5px;
-    transition: all 0.2s;
+    transition: all 0.25s;
     margin-top: 8px;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 0 14px rgba(144,144,176,0.18), 0 0 40px rgba(144,144,176,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
+    text-shadow: 0 0 12px rgba(180,180,210,0.5);
   }
 
   .btn-settle:hover {
-    background: rgba(144,144,176,0.12);
-    border-color: rgba(144,144,176,0.6);
-    color: var(--text);
+    background: linear-gradient(135deg, rgba(144,144,176,0.22), rgba(100,100,140,0.16));
+    border-color: rgba(180,180,210,0.8);
+    color: #e8e8f8;
+    box-shadow: 0 0 24px rgba(144,144,176,0.4), 0 0 70px rgba(144,144,176,0.12), inset 0 1px 0 rgba(255,255,255,0.1);
+    text-shadow: 0 0 18px rgba(200,200,240,0.8);
     transform: translateY(-1px);
   }
 
