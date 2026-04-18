@@ -4,7 +4,9 @@
 
 ## Demo
 
-<a href="https://youtu.be/Jtzw8YRKgD8"><img src="https://img.youtube.com/vi/Jtzw8YRKgD8/1.jpg" width="480" alt="Zeka Pagamentos — Demo"></a>
+<a href="https://youtu.be/Jtzw8YRKgD8"><img src="https://img.youtube.com/vi/Jtzw8YRKgD8/maxresdefault.jpg" width="480" alt="Zeka Pagamentos — Demo"></a>
+
+▶️ [Watch demo on YouTube](https://youtu.be/Jtzw8YRKgD8)
 
 ---
 
