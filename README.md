@@ -142,6 +142,14 @@ Each TX includes the oracle price proof in metadata (CIP-20, key 674).
 
 ---
 
+## AI Tools Used
+
+| Tool | Model | Usage |
+|---|---|---|
+| [Claude Code](https://claude.ai/code) | Claude Sonnet 4.6 | Primary development assistant — backend, frontend, smart contract, architecture |
+
+---
+
 ## Setup
 
 ```bash
